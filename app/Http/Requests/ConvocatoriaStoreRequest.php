@@ -3,37 +3,61 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Convocatoria; // Asegúrate de tener este modelo
 
 class ConvocatoriaStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Solo el jefe puede crear convocatorias (asegúrate de que este rol coincida con tu DB)
+        // Solo el jefe puede crear convocatorias
         return auth()->user()->rol === 'jefe';
     }
 
     public function rules(): array
     {
+        $campaniaIds = [1,2,3,4,5,10,11,14,15,17,19,24];
+        $cargoIds = [1,2,3,4,5,6,7,9,10,11];
+
         return [
-            'reclutador_cargo_id' => ['required', 'exists:pri.empleados,CargoID'], // Asumiendo que el ID se pasa como 'reclutador_cargo_id' y existe en pri.empleados.CargoID
-            'campana' => ['required', 'string', 'max:255'],
+            'campana' => ['required', 'integer', Rule::in($campaniaIds)],
             'requerimiento_personal' => ['required', 'integer', 'min:1'],
-            'turno' => ['required', 'string', 'in:Mañana,Tarde,Noche'],
+            
+            // --- REGLAS PARA LOS NUEVOS CAMPOS ---
+            'tipo_cargo' => ['required', 'integer', Rule::in($cargoIds)],
+            'experiencia' => ['required', 'string', 'in:si,no,indiferente'],
+            
+            // Turnos (Multiselect) - Opcional
+            'turnos' => ['nullable', 'array'], 
+            'turnos.*' => ['integer'], // Validamos que cada elemento del array sea un entero (HorarioID)
+            
+            // Fechas de Capacitación
+            'fecha_inicio_capacitacion' => ['required', 'date'],
+            'fecha_fin_capacitacion' => ['required', 'date', 'after_or_equal:fecha_inicio_capacitacion'],
         ];
     }
     
-    // Opcional: Mensajes de error en español
     public function messages()
     {
         return [
-            'reclutador_cargo_id.required' => 'Debes seleccionar un Reclutador/Cargo.',
-            'reclutador_cargo_id.exists' => 'El Cargo seleccionado no es válido.',
             'campana.required' => 'El nombre de la Campaña es obligatorio.',
+            'campana.integer' => 'Selecciona una campaña válida.',
+            'campana.in' => 'La campaña seleccionada no es válida.',
+            
             'requerimiento_personal.required' => 'El requerimiento de personal es obligatorio.',
             'requerimiento_personal.integer' => 'El requerimiento debe ser un número entero.',
             'requerimiento_personal.min' => 'Se requiere al menos 1 persona.',
-            'turno.required' => 'El turno es obligatorio.',
-            'turno.in' => 'El turno seleccionado no es válido.',
+            
+            'tipo_cargo.required' => 'El tipo de cargo es obligatorio.',
+            'tipo_cargo.integer' => 'Selecciona un cargo válido.',
+            'tipo_cargo.in' => 'El cargo seleccionado no es válido.',
+            'experiencia.in' => 'La opción de experiencia no es válida.',
+            
+            'turnos.array' => 'La selección de turnos debe ser una lista válida.',
+
+            'fecha_inicio_capacitacion.required' => 'La fecha de inicio es obligatoria.',
+            'fecha_fin_capacitacion.required' => 'La fecha de fin es obligatoria.',
+            'fecha_fin_capacitacion.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
         ];
     }
 }

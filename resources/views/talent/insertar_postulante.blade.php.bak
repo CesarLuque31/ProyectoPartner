@@ -1,0 +1,354 @@
+<div class="max-w-4xl p-6">
+    <h2 class="text-2xl font-bold mb-6">Insertar Postulante</h2>
+
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <!-- Sección: Búsqueda por DNI -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">Datos Personales (Búsqueda por DNI)</h3>
+            <div class="flex gap-4 items-end">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                    <input id="dni-input" type="text" placeholder="Ingresa el DNI" class="border border-gray-300 p-2 w-full rounded" />
+                </div>
+                <button id="btn-buscar" type="button" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Buscar</button>
+            </div>
+        </div>
+
+        <!-- Formulario de Postulante -->
+        <form id="postulante-form">
+            @csrf
+            
+            <!-- Campos Autofill (Read-only) -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Información Obtenida</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+                        <input name="nombres" id="nombres" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno</label>
+                        <input name="ap_pat" id="ap_pat" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellido Materno</label>
+                        <input name="ap_mat" id="ap_mat" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Nacimiento</label>
+                        <input name="fecha_nac" id="fecha_nac" type="date" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                        <input name="direccion" id="direccion" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
+                        <input name="sexo" id="sexo" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campo DNI Oculto para envío -->
+            <input type="hidden" name="dni" id="dni-field" />
+
+            <!-- Campos que el usuario debe rellenar -->
+            <div class="mb-6" id="additional-fields" style="display: none;">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Información Adicional (Obligatorio)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Celular <span class="text-red-600">*</span></label>
+                        <input name="celular" id="celular" type="tel" class="border border-gray-300 p-2 w-full rounded" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo <span class="text-red-600">*</span></label>
+                        <input name="correo" id="correo" type="email" class="border border-gray-300 p-2 w-full rounded" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Provincia <span class="text-red-600">*</span></label>
+                        <input name="provincia" id="provincia" class="border border-gray-300 p-2 w-full rounded" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Distrito <span class="text-red-600">*</span></label>
+                        <input name="distrito" id="distrito" class="border border-gray-300 p-2 w-full rounded" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Experiencia Call Center <span class="text-red-600">*</span></label>
+                        <select name="experiencia_callcenter" id="experiencia_callcenter" class="border border-gray-300 p-2 w-full rounded" required>
+                            <option value="">Seleccionar</option>
+                            <option value="si">Sí</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Discapacidad <span class="text-red-600">*</span></label>
+                        <select name="discapacidad" id="discapacidad" class="border border-gray-300 p-2 w-full rounded" required>
+                            <option value="">Seleccionar</option>
+                            <option value="si">Sí</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+
+                    <div id="tipo_discapacidad_container" style="display: none;">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Discapacidad</label>
+                        <input name="tipo_discapacidad" id="tipo_discapacidad" class="border border-gray-300 p-2 w-full rounded" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Contrato <span class="text-red-600">*</span></label>
+                        <input name="tipo_contrato" id="tipo_contrato" class="border border-gray-300 p-2 w-full rounded" required />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Modalidad Trabajo <span class="text-red-600">*</span></label>
+                        <select name="modalidad_trabajo" id="modalidad_trabajo" class="border border-gray-300 p-2 w-full rounded" required>
+                            <option value="">Seleccionar</option>
+                            <option value="presencial">Presencial</option>
+                            <option value="remoto">Remoto</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Gestión (Horario) <span class="text-red-600">*</span></label>
+                        <select name="tipo_gestion" id="tipo_gestion" class="border border-gray-300 p-2 w-full rounded" required>
+                            <option value="">Cargando...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón Guardar (Oculto hasta buscar) -->
+            <div id="button-container" style="display: none;" class="flex gap-4">
+                <button id="btn-guardar" type="button" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Guardar Postulante</button>
+                <button id="btn-limpiar" type="button" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 transition">Limpiar Formulario</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const tipoGestionSelect = document.getElementById('tipo_gestion');
+    const discapacidadSelect = document.getElementById('discapacidad');
+    const tipoDiscapacidadContainer = document.getElementById('tipo_discapacidad_container');
+    const additionalFields = document.getElementById('additional-fields');
+    const buttonContainer = document.getElementById('button-container');
+
+    // Mostrar campo "Tipo Discapacidad" solo si se selecciona "Sí"
+    discapacidadSelect.addEventListener('change', function(){
+        if(this.value === 'si') {
+            tipoDiscapacidadContainer.style.display = 'block';
+            document.getElementById('tipo_discapacidad').required = true;
+        } else {
+            tipoDiscapacidadContainer.style.display = 'none';
+            document.getElementById('tipo_discapacidad').required = false;
+            document.getElementById('tipo_discapacidad').value = '';
+        }
+    });
+
+    // Cargar opciones de horarios (tipo_gestion)
+    fetch('/api/horarios-base')
+        .then(r => r.json())
+        .then(data => {
+            tipoGestionSelect.innerHTML = '<option value="">Seleccionar</option>';
+            if (Array.isArray(data)) {
+                data.forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h.HorarioID;
+                    opt.textContent = h.HorarioCompleto;
+                    tipoGestionSelect.appendChild(opt);
+                });
+            }
+        }).catch(()=>{ tipoGestionSelect.innerHTML = '<option value="">Error al cargar</option>'; });
+
+    // Buscar por DNI
+    document.getElementById('btn-buscar').addEventListener('click', function(){
+        // ... (código de validación y Swal.fire de loading) ...
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const routeUrl = document.querySelector('meta[name="route-consulta"]')?.getAttribute('content') || '/postulantes/consulta';
+        
+        fetch(routeUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ dni: dni })
+        })
+        // 🛑 INICIO DE CÓDIGO MODIFICADO 🛑
+        .then(r => {
+            // Chequear Content-Type antes de parsear JSON
+            const contentType = r.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                // Si no es JSON, es probablemente HTML de error 500
+                const error = new Error(`Respuesta no-JSON (${r.status}): Content-Type = ${contentType}`);
+                error.status = r.status;
+                error.response = { error: 'El servidor devolvió una respuesta inválida. Por favor contacta soporte.' };
+                throw error;
+            }
+            
+            return r.json().then(data => {
+                if (r.ok) {
+                    return data; // Éxito (Status 200)
+                } else {
+                    // Crea un Error personalizado para capturar el JSON de error
+                    const error = new Error(`HTTP ${r.status}`);
+                    error.response = data; // Adjuntamos el cuerpo JSON (incluye 'message' y 'error')
+                    error.status = r.status; // Guardamos el status (409, 422, 500)
+                    throw error;
+                }
+            });
+        })
+        .then(res => {
+            console.log('📡 Respuesta recibida del servidor:', {status: 'OK', success: res.success, tieneData: !!res.data});
+            Swal.close(); // Cerrar el loading si todo fue OK (Status 200)
+
+            // Lógica de éxito: llenar el formulario
+            if(res.success && res.data) {
+                console.log('✅ DNI encontrado - Rellenando formulario:', res.data);
+                const d = res.data;                // Mapeo de sexo: 1 = Masculino, 2 = Femenino (solo para mostrar)
+                let sexoLabel = d.sexo;
+                if(d.sexo === '1' || d.sexo === 1) sexoLabel = 'Masculino';
+                else if(d.sexo === '2' || d.sexo === 2) sexoLabel = 'Femenino';
+                
+                // Poblar campos autofill (read-only)
+                document.getElementById('nombres').value = d.nombres || '';
+                document.getElementById('ap_pat').value = d.ap_pat || '';
+                document.getElementById('ap_mat').value = d.ap_mat || '';
+                document.getElementById('fecha_nac').value = d.fecha_nac || '';
+                document.getElementById('direccion').value = d.direccion || '';
+                document.getElementById('sexo').value = sexoLabel || '';
+                
+                // Asegurar que el input hidden para el sexo numérico existe
+                let sexoNumericInput = document.getElementById('sexo_numeric');
+                if (!sexoNumericInput) {
+                    sexoNumericInput = document.createElement('input');
+                    sexoNumericInput.type = 'hidden';
+                    sexoNumericInput.name = 'sexo_numeric';
+                    sexoNumericInput.id = 'sexo_numeric';
+                    document.getElementById('postulante-form').appendChild(sexoNumericInput);
+                }
+                sexoNumericInput.value = d.sexo || ''; // Guardar valor 1/2
+                
+                document.getElementById('dni-field').value = d.dni || dni;
+
+                // Mostrar campos adicionales y botones
+                additionalFields.style.display = 'block';
+                buttonContainer.style.display = 'flex';
+
+                Swal.fire('Éxito', 'Datos encontrados. Completa los campos obligatorios.', 'success');
+            } else {
+                // En caso de que el servidor devuelva success: false pero con status 200 (poco común)
+                const errorMsg = res.error || 'No se encontraron datos para ese DNI';
+                Swal.fire('Error', errorMsg, 'error');
+            }
+        })
+        .catch((err) => { 
+            console.error('❌ Error en consulta DNI - Detalles:', {
+                status: err.status,
+                message: err.message,
+                responseError: err.response?.error,
+                tieneData: !!err.response?.data
+            });
+            Swal.close(); // Siempre cerrar el loading en caso de error
+
+            // Si ya se rellenaron los campos (éxito pero con error secundario), ignorar
+            const nombresValue = document.getElementById('nombres').value;
+            if (nombresValue) {
+                console.warn('⚠️ Error secundario ignorado - datos ya cargados exitosamente');
+                return;
+            }
+            
+            // 🛑 Lógica para el DNI DUPLICADO (Status 409)
+            if (err.status === 409 && err.response && err.response.error === 'Postulante ya registrado') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Postulante ya Registrado',
+                    // Usar el mensaje específico que enviaste desde el controlador
+                    text: err.response.message, 
+                });
+                
+                // Opcional: Limpiar el formulario para evitar confusiones
+                document.getElementById('btn-limpiar').click();
+                
+            } else if (err.response) {
+                // Otros errores HTTP (422, 500, etc.)
+                const errorMsg = err.response.error || err.response.message || 'Error desconocido del servidor.';
+                Swal.fire('Error', `Error de consulta: ${errorMsg}`, 'error'); 
+            } else {
+                // Error de red o fallo de conexión
+                const errorDetail = err.message || err.toString();
+                Swal.fire('Error', `No se pudo conectar al servicio: ${errorDetail}`, 'error'); 
+            }
+        });
+        // 🛑 FIN DE CÓDIGO MODIFICADO 🛑
+    });
+
+
+    // Limpiar formulario
+    document.getElementById('btn-limpiar').addEventListener('click', function(){
+        document.getElementById('postulante-form').reset();
+        document.getElementById('dni-input').value = '';
+        document.getElementById('dni-field').value = '';
+        additionalFields.style.display = 'none';
+        buttonContainer.style.display = 'none';
+        tipoDiscapacidadContainer.style.display = 'none';
+    });
+
+    // Guardar postulante
+    document.getElementById('btn-guardar').addEventListener('click', function(){
+        const form = document.getElementById('postulante-form');
+        
+        if(!form.checkValidity()) {
+            Swal.fire('Error', 'Por favor completa todos los campos obligatorios', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+        const payload = {};
+        formData.forEach((v,k)=> payload[k]=v);
+        
+        // Reemplazar sexo por el valor numérico guardado
+        if(payload.sexo_numeric) {
+            payload.sexo = payload.sexo_numeric;
+            delete payload.sexo_numeric;
+        }
+
+        Swal.fire({
+            title: 'Guardando...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        const storeUrl = document.querySelector('meta[name="route-store"]')?.getAttribute('content') || '/postulantes';
+        
+        fetch(storeUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(payload)
+        }).then(r=>r.json()).then(res=>{
+            if(res.success){ 
+                Swal.fire('Éxito','Postulante guardado correctamente','success').then(() => {
+                    document.getElementById('postulante-form').reset();
+                    document.getElementById('dni-input').value = '';
+                    document.getElementById('dni-field').value = '';
+                    additionalFields.style.display = 'none';
+                    buttonContainer.style.display = 'none';
+                    tipoDiscapacidadContainer.style.display = 'none';
+                });
+            } else {
+                Swal.fire('Error', res.error || 'No se pudo guardar', 'error');
+            }
+        }).catch(err=> Swal.fire('Error', 'Error al guardar: '+err.message, 'error'));
+    });
+});
+</script>
+@endpush
+</div>

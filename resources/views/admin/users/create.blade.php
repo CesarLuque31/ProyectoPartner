@@ -1,13 +1,7 @@
-<div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+@if(auth()->check() && auth()->user()->rol === 'jefe')
+    <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
     <h2 class="text-2xl font-semibold mb-4 text-indigo-600">Crear Nuevo Usuario</h2>
     <p class="text-gray-600 mb-6">Completa el formulario para dar de alta a un nuevo Jefe, Analista, Operador o Reclutador en el sistema.</p>
-
-    {{-- Mostrar mensaje de éxito si existe (se usa después de crear exitosamente) --}}
-    @if (session('status'))
-        <div class="mb-4 font-medium text-sm text-green-600 bg-green-50 p-3 rounded-lg border border-green-200">
-            {{ session('status') }}
-        </div>
-    @endif
 
     {{-- 
         ACCIÓN CRÍTICA:
@@ -88,3 +82,22 @@
         </div>
     </form>
 </div>
+
+    @push('scripts')
+    <script>
+        @if (session('status') && strpos(session('status'), 'creado exitosamente') !== false)
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Usuario Creado!',
+                    text: "{{ session('status') }}",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    toast: true,
+                    position: 'top-end'
+                });
+            });
+        @endif
+    </script>
+    @endpush
+@endif

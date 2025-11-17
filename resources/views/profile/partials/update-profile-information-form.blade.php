@@ -54,3 +54,21 @@
         </div>
     </form>
 </section>
+
+@push('scripts')
+<script>
+    @if (session('status') === 'profile-updated')
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Perfil Actualizado!',
+                text: 'Tu información personal ha sido guardada con éxito.',
+                showConfirmButton: false,
+                timer: 3000,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    @endif
+</script>
+@endpush

@@ -72,10 +72,24 @@
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Guardar Contraseña') }}</x-primary-button>
-            
-            @if (session('status') === 'password-updated')
-                <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 2000)" class="text-sm text-gray-600">{{ __('Guardado.') }}</p>
-            @endif
         </div>
     </form>
 </section>
+
+@push('scripts')
+<script>
+    @if (session('status') === 'password-updated')
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Contraseña Cambiada!',
+                text: 'Tu contraseña ha sido modificada correctamente.',
+                showConfirmButton: false,
+                timer: 3000,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    @endif
+</script>
+@endpush

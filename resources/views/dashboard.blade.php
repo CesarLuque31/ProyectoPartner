@@ -1,51 +1,7 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
-
+    
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            {{-- BLOQUE DE NOTIFICACIONES (SWEETALERT2) --}}
-            @if (session('status') || session('error'))
-                <script>
-                    let statusKey = "{{ session('status') ?? '' }}";
-                    let errorMsg = "{{ session('error') ?? '' }}";
-                    let titleText = "";
-                    let messageText = "";
-                    let iconType = "success";
-
-                    if (errorMsg) {
-                        iconType = 'error';
-                        titleText = '¡Error!';
-                        messageText = errorMsg;
-                    } else if (statusKey === 'profile-updated') {
-                        titleText = "¡Perfil Actualizado!";
-                        messageText = "Tu información personal ha sido guardada con éxito.";
-                    } else if (statusKey === 'password-updated') {
-                        titleText = "¡Contraseña Cambiada!";
-                        messageText = "Tu contraseña ha sido modificada correctamente.";
-                    } else {
-                        titleText = "Éxito";
-                        messageText = statusKey || "Operación completada.";
-                    }
-
-                    if (titleText) {
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-end',
-                            icon: iconType,
-                            title: titleText,
-                            text: messageText,
-                            showConfirmButton: false,
-                            timer: 4000,
-                            timerProgressBar: true,
-                        });
-                    }
-                </script>
-            @endif
 
             {{-- CONTENEDOR PRINCIPAL: Aplica a TODOS los usuarios --}}
             <div class="bg-white shadow-xl sm:rounded-lg" x-data="{ currentTab: 'profile' }">
@@ -89,7 +45,15 @@
                                     <div x-show="talentOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-y-0" x-transition:enter-end="opacity-100 transform scale-y-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-y-100" x-transition:leave-end="opacity-0 transform scale-y-0" class="origin-top pl-4 pt-1 pb-1 border-l border-indigo-200 ml-2 space-y-1">
                                         
                                         <button @click="currentTab = 'talent_convocatorias'" :class="{ 'bg-indigo-500 text-white': currentTab === 'talent_convocatorias', 'text-indigo-700 hover:bg-indigo-50': currentTab !== 'talent_convocatorias' }" class="w-full text-left py-2 px-3 rounded-lg transition-colors duration-150 font-semibold text-sm">
-                                            <i class="fas fa-bullhorn mr-2"></i> Convocatorias
+                                            <i class="fas fa-bullhorn mr-2"></i> Crear Convocatorias
+                                        </button>
+
+                                        <button @click="currentTab = 'talent_convocatorias_list'" :class="{ 'bg-indigo-500 text-white': currentTab === 'talent_convocatorias_list', 'text-indigo-700 hover:bg-indigo-50': currentTab !== 'talent_convocatorias_list' }" class="w-full text-left py-2 px-3 rounded-lg transition-colors duration-150 font-semibold text-sm">
+                                            <i class="fas fa-list mr-2"></i> Listado Convocatorias
+                                        </button>
+
+                                        <button @click="currentTab = 'insertar_postulante'" :class="{ 'bg-indigo-500 text-white': currentTab === 'insertar_postulante', 'text-indigo-700 hover:bg-indigo-50': currentTab !== 'insertar_postulante' }" class="w-full text-left py-2 px-3 rounded-lg transition-colors duration-150 font-semibold text-sm">
+                                            <i class="fas fa-user-plus mr-2"></i> Insertar Postulantes
                                         </button>
                                         
                                     </div>
@@ -107,6 +71,9 @@
                                 <button @click="currentTab = 'candidates'" :class="{ 'bg-indigo-500 text-white': currentTab === 'candidates', 'text-indigo-700 hover:bg-indigo-50': currentTab !== 'candidates' }" class="w-full text-left py-2 px-3 rounded-lg transition-colors duration-150 font-semibold mb-2">
                                     <i class="fas fa-users mr-2"></i> Candidatos
                                 </button>
+                                <button @click="currentTab = 'insertar_postulante'" :class="{ 'bg-indigo-500 text-white': currentTab === 'insertar_postulante', 'text-indigo-700 hover:bg-indigo-50': currentTab !== 'insertar_postulante' }" class="w-full text-left py-2 px-3 rounded-lg transition-colors duration-150 font-semibold mb-2">
+                                    <i class="fas fa-user-plus mr-2"></i> Insertar Postulantes
+                                </button>
                                 @break
                             
                             @case('operador')
@@ -119,7 +86,24 @@
 
                     {{-- 2. ÁREA DE CONTENIDO DINÁMICO --}}
                     <div class="w-3/4 pl-6">
+                        @php
+                            // Pre-cargar datos de convocatorias para las vistas que los necesiten
+                            $TalentoControllerList = app(\App\Http\Controllers\TalentoController::class);
+                            $data = $TalentoControllerList->getConvocatoriasData();
+                            $convocatorias = $data['convocatorias'];
+                            $campanias = $data['campanias'];
+                            $cargos = $data['cargos'];
+                            $horarios = $data['horarios'] ?? [];
+                            $reclutadores_disponibles = $data['reclutadores_disponibles'] ?? [];
+                        @endphp
+
                         <h1 class="text-3xl font-bold mb-6 text-gray-700">Panel Dinámico</h1>
+
+                        @if(Auth::user()->rol === 'jefe')
+                            <div x-show="currentTab === 'talent_convocatorias_list'" class="mb-6">
+                                @include('talent.convocatorias_list')
+                            </div>
+                        @endif
                         
                         {{-- VISTA 1 (POR DEFECTO): PERFIL (Para todos) --}}
                         <div x-show="currentTab === 'profile'" class="space-y-8">
@@ -196,6 +180,12 @@
                                 <div x-show="currentTab === 'talent_convocatorias'">
                                     @include('talent.convocatorias')
                                 </div>
+
+                                <div x-show="currentTab === 'insertar_postulante'">
+                                    @include('talent.insertar_postulante')
+                                </div>
+
+                                {{-- convocatorias_list moved up to be rendered under the Panel Dinámico title --}}
                                 @break
 
                             @case('analista')
@@ -209,6 +199,9 @@
                                 <div x-show="currentTab === 'candidates'">
                                     <h2 class="text-2xl font-semibold mb-4 text-indigo-600">Gestión de Candidatos</h2>
                                     <p class="text-gray-600">Listado y gestión de procesos de selección.</p>
+                                </div>
+                                <div x-show="currentTab === 'insertar_postulante'">
+                                    @include('talent.insertar_postulante')
                                 </div>
                                 @break
                             
@@ -224,4 +217,10 @@
             </div>
         </div>
     </div>
+
+    {{-- Consumir mensajes de sesión después de que profile los haya consumido --}}
+    @php
+        session()->forget('status');
+        session()->forget('error');
+    @endphp
 </x-app-layout>
