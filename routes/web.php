@@ -80,6 +80,10 @@ Route::middleware('auth')->group(function () {
         // ASIGNAR RECLUTADORES (POST)
         Route::post('/convocatorias/{id}/assign-reclutadores', [TalentoController::class, 'assignReclutadores'])
             ->name('convocatorias.assign-reclutadores');
+
+        // FILTRAR CONVOCATORIAS (AJAX)
+        Route::post('/convocatorias/filtrar', [TalentoController::class, 'filtrarConvocatorias'])
+            ->name('convocatorias.filtrar');
     });
 
     // RUTA GET: Si alguien intenta ir a /convocatorias, lo enviamos al dashboard

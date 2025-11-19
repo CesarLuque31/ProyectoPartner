@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Models\Convocatoria;
@@ -12,8 +11,108 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 
+
 class TalentoController extends Controller
 {
+    /**
+     * Filtra convocatorias según los filtros recibidos por AJAX y retorna solo los datos necesarios.
+     */
+    public function filtrarConvocatorias(Request $request)
+    {
+        // Filtros recibidos
+        $campana = $request->input('campana');
+        $cargo = $request->input('cargo');
+        $estado = $request->input('estado');
+        $fecha_inicio = $request->input('fecha_inicio');
+        $fecha_fin = $request->input('fecha_fin');
+        $reclutador = $request->input('reclutador');
+
+        $query = Convocatoria::query();
+
+        if ($campana) {
+            $query->where('campana', $campana);
+        }
+        if ($cargo) {
+            $query->where('tipo_cargo', $cargo);
+        }
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+        if ($fecha_inicio) {
+            $query->whereDate('fecha_inicio_capacitacion', '>=', $fecha_inicio);
+        }
+        if ($fecha_fin) {
+            $query->whereDate('fecha_fin_capacitacion', '<=', $fecha_fin);
+        }
+        if ($reclutador) {
+            if ($reclutador === 'sin-asignar') {
+                $query->where(function($q){
+                    $q->whereNull('reclutadores_asignados')->orWhere('reclutadores_asignados', '[]')->orWhere('reclutadores_asignados', 'null')->orWhere('reclutadores_asignados', '');
+                });
+            } else {
+                $query->where(function($q) use ($reclutador) {
+                    $q->where('reclutadores_asignados', 'like', '%"'.$reclutador.'"%');
+                });
+            }
+        }
+
+        $convocatorias = $query->orderBy('created_at', 'desc')->get();
+
+        // Mapas auxiliares para nombres
+        $campanias = $this->getCampanias()->keyBy('id')->map(function($item){ return $item->nombre; })->toArray();
+        $cargos = $this->getCargos()->keyBy('id')->map(function($item){ return $item->nombre; })->toArray();
+        $horarios = $this->getHorariosBase()->keyBy('HorarioID')->map(function($h){ return $h->HorarioCompleto; })->toArray();
+        $reclutadores_disponibles = $this->getReclutadores()->keyBy('id')->map(function($r){ return $r->nombre; })->toArray();
+
+        // Solo los datos necesarios para la tarjeta
+        $result = $convocatorias->map(function($c) use ($campanias, $cargos, $horarios, $reclutadores_disponibles, $request) {
+            // Turnos
+            $turnos = is_array($c->turnos_json) ? $c->turnos_json : json_decode($c->turnos_json, true);
+            $turnos_labels = [];
+            if (is_array($turnos)) {
+                foreach ($turnos as $t) {
+                    $turnos_labels[] = $horarios[$t] ?? $t;
+                }
+            }
+            // Reclutadores asignados
+            $recIDs = $c->reclutadores_asignados;
+            if (is_string($recIDs)) {
+                $recIDs = json_decode($recIDs, true);
+            }
+            $recIDs = $recIDs ?? [];
+            $reclutadores_asignados_labels = [];
+            if (is_array($recIDs)) {
+                foreach ($recIDs as $rID) {
+                    $reclutadores_asignados_labels[] = $reclutadores_disponibles[$rID] ?? (is_numeric($rID) ? ("ID: $rID") : $rID);
+                }
+            }
+            // Experiencia label
+            $expLabel = $c->experiencia === 'si' ? 'Sí' : ($c->experiencia === 'no' ? 'No' : 'Indiferente');
+
+            return [
+                'id' => $c->id,
+                'created_at' => optional($c->created_at)->format('d/m/Y H:i'),
+                'estado' => $c->estado,
+                'campania_nombre' => $campanias[$c->campana] ?? $c->campana,
+                'cargo_nombre' => $cargos[$c->tipo_cargo] ?? $c->tipo_cargo,
+                'requerimiento_personal' => $c->requerimiento_personal,
+                'experiencia_label' => $expLabel,
+                'fecha_inicio_capacitacion' => optional($c->fecha_inicio_capacitacion)->format('d/m/Y') ?? 'N/A',
+                'fecha_fin_capacitacion' => optional($c->fecha_fin_capacitacion)->format('d/m/Y') ?? 'N/A',
+                'turnos_labels' => $turnos_labels,
+                'reclutadores_asignados_labels' => $reclutadores_asignados_labels,
+                'csrf_token' => csrf_token(),
+            ];
+        });
+
+        return response()->json([
+            'convocatorias' => $result,
+            'campanias' => $campanias,
+            'cargos' => $cargos,
+            'horarios' => $horarios,
+            'reclutadores_disponibles' => $reclutadores_disponibles,
+        ]);
+    }
     /**
      * Maneja la creación de una nueva convocatoria.
      */

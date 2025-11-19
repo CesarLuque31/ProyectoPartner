@@ -22,7 +22,6 @@ class Convocatoria extends Model
         'fecha_inicio_capacitacion', 
         'fecha_fin_capacitacion',    
         'turnos_json',         // Este campo guardará el array de turnos
-        'reclutadores_asignados', // JSON con IDs de reclutadores
         
         'estado',
     ];
@@ -34,7 +33,6 @@ class Convocatoria extends Model
     protected $casts = [
         // Le indica a Laravel que este campo de la DB (NVARCHAR/TEXT) debe ser tratado como un array/JSON
         'turnos_json' => 'array', 
-        'reclutadores_asignados' => 'json',
         
         // Opcional: Asegura que las fechas se manejen como objetos Carbon
         'fecha_inicio_capacitacion' => 'datetime',

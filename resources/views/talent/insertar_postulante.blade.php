@@ -1,4 +1,49 @@
 @if(auth()->check() && (auth()->user()->rol === 'jefe' || auth()->user()->rol === 'reclutador'))
+    @php
+        // Cargar datos necesarios una sola vez en el servidor
+        $TalentoController = app(\App\Http\Controllers\TalentoController::class);
+        
+        // Obtener tipos de contrato y horarios base
+        $tiposContrato = collect([]);
+        $horariosBase = collect([]);
+        
+        try {
+            // Cargar tipos de contrato desde DB (tabla en SQL Server)
+            $tiposContrato = \Illuminate\Support\Facades\DB::table('raz_tipocontratos')
+                ->where('estado', 1)
+                ->select('tipo_contrato')
+                ->orderBy('tipo_contrato')
+                ->get();
+        } catch (\Exception $e) {
+            \Log::warning('Error cargando tipos_contrato: ' . $e->getMessage());
+        }
+        
+        try {
+            // Cargar horarios base desde DB
+            $horariosBase = $TalentoController->getHorariosBase();
+        } catch (\Exception $e) {
+            \Log::warning('Error cargando horarios_base: ' . $e->getMessage());
+        }
+        
+        // Cargar ubigeos desde archivo JSON
+        $ubigeos = [];
+        $ubigeoPath = public_path('data');
+        
+        try {
+            $departamentosFile = $ubigeoPath . '/ubigeo_peru_2016_departamentos.json';
+            $provinciasFile = $ubigeoPath . '/ubigeo_peru_2016_provincias.json';
+            $distritosFile = $ubigeoPath . '/ubigeo_peru_2016_distritos.json';
+            
+            if (file_exists($departamentosFile) && file_exists($provinciasFile) && file_exists($distritosFile)) {
+                $ubigeos['departamentos'] = json_decode(file_get_contents($departamentosFile), true) ?? [];
+                $ubigeos['provincias'] = json_decode(file_get_contents($provinciasFile), true) ?? [];
+                $ubigeos['distritos'] = json_decode(file_get_contents($distritosFile), true) ?? [];
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Error cargando archivos ubigeos: ' . $e->getMessage());
+        }
+    @endphp
+
     <div class="max-w-4xl p-6">
         <h2 class="text-2xl font-bold mb-6">Insertar Postulante</h2>
 
@@ -68,7 +113,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Departamento <span class="text-red-600">*</span></label>
                         <select name="departamento" id="departamento" class="border border-gray-300 p-2 w-full rounded" required>
-                            <option value="">Cargando...</option>
+                            <option value="">Seleccionar</option>
+                            @php
+                                $departamentos = $ubigeos['departamentos'] ?? [];
+                                usort($departamentos, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
+                            @endphp
+                            @foreach($departamentos as $dept)
+                                <option value="{{ $dept['id'] ?? '' }}">{{ $dept['name'] ?? '' }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -111,7 +163,10 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Contrato <span class="text-red-600">*</span></label>
                         <select name="tipo_contrato" id="tipo_contrato" class="border border-gray-300 p-2 w-full rounded" required>
-                            <option value="">Cargando...</option>
+                            <option value="">Seleccionar</option>
+                            @foreach($tiposContrato as $tc)
+                                <option value="{{ $tc->tipo_contrato }}">{{ $tc->tipo_contrato }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -127,22 +182,40 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Gestión (Horario) <span class="text-red-600">*</span></label>
                         <select name="tipo_gestion" id="tipo_gestion" class="border border-gray-300 p-2 w-full rounded" required>
-                            <option value="">Cargando...</option>
+                            <option value="">Seleccionar</option>
+                            @foreach($horariosBase as $h)
+                                <option value="{{ $h->HorarioID }}">{{ $h->HorarioCompleto }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
             </div>
 
             <!-- Botón Guardar (Oculto hasta buscar) -->
-            <div id="button-container" style="display: none;" class="flex gap-4">
-                <button id="btn-guardar" type="button" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Guardar Postulante</button>
-                <button id="btn-limpiar" type="button" class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 transition">Limpiar Formulario</button>
+            <div id="button-container" style="display: none;" class="flex gap-2">
+                <button id="btn-guardar" type="button" class="bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700 transition">Guardar Postulante</button>
+                <button id="btn-limpiar" type="button" class="bg-gray-400 text-white px-4 py-1 rounded text-sm hover:bg-gray-500 transition">Limpiar Formulario</button>
             </div>
         </form>
     </div>
 </div>
 
+    @php
+        // Preparar datos para JS (en array PHP, no en JSON embebido)
+        $departamentosJson = json_encode($ubigeos['departamentos'] ?? []);
+        $provinciasJson = json_encode($ubigeos['provincias'] ?? []);
+        $distritosJson = json_encode($ubigeos['distritos'] ?? []);
+    @endphp
+    
     @push('scripts')
+    <script>
+        // Datos de ubigeos ya cargados desde PHP (sin necesidad de fetch)
+        window.ubigeoData = {
+            departamentos: {!! $departamentosJson !!},
+            provincias: {!! $provinciasJson !!},
+            distritos: {!! $distritosJson !!}
+        };
+    </script>
     <script>
 document.addEventListener('DOMContentLoaded', function(){
     const tipoGestionSelect = document.getElementById('tipo_gestion');
@@ -170,30 +243,17 @@ document.addEventListener('DOMContentLoaded', function(){
     const provinciaSelect = document.getElementById('provincia');
     const distritoSelect = document.getElementById('distrito');
 
-    let departamentosData = null;
-    let provinciasData = null;
-    let distritosData = null;
+    // Datos de ubigeos (ya cargados desde PHP en el servidor, no necesitamos fetch)
+    let departamentosData = window.ubigeoData.departamentos;
+    let provinciasData = window.ubigeoData.provincias;
+    let distritosData = window.ubigeoData.distritos;
 
-    // Cargar todos los JSONs de ubigeos
-    Promise.all([
-        fetch('/data/ubigeo_peru_2016_departamentos.json').then(r => r.json()),
-        fetch('/data/ubigeo_peru_2016_provincias.json').then(r => r.json()),
-        fetch('/data/ubigeo_peru_2016_distritos.json').then(r => r.json())
-    ]).then(([depts, provs, dists]) => {
-        departamentosData = depts;
-        provinciasData = provs;
-        distritosData = dists;
-        populateDepartamentos();
-    }).catch(err => {
-        console.error('Error cargando ubigeos:', err);
-        departamentoSelect.innerHTML = '<option value="">Error al cargar departamentos</option>';
-    });
-
+    // Poblar departamentos al cargar
     function populateDepartamentos() {
         departamentoSelect.innerHTML = '<option value="">Seleccionar</option>';
         departamentosData.forEach((d) => {
             const opt = document.createElement('option');
-            opt.value = d.name;
+            opt.value = d.id;
             opt.textContent = d.name;
             departamentoSelect.appendChild(opt);
         });
@@ -201,77 +261,45 @@ document.addEventListener('DOMContentLoaded', function(){
         distritoSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
     }
 
-    function populateProvincias(depName) {
+    function populateProvincias(depId) {
         provinciaSelect.innerHTML = '<option value="">Seleccionar</option>';
         distritoSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
-        if (!depName) return;
-        
-        const depId = departamentosData.find(d => d.name === depName)?.id;
         if (!depId) return;
         
         const provincias = provinciasData.filter(p => p.department_id === depId);
         provincias.forEach((p) => {
             const opt = document.createElement('option');
-            opt.value = p.name;
+            opt.value = p.id;
             opt.textContent = p.name;
             provinciaSelect.appendChild(opt);
         });
     }
 
-    function populateDistritos(provName) {
+    function populateDistritos(provId) {
         distritoSelect.innerHTML = '<option value="">Seleccionar</option>';
-        if (!provName) return;
-        
-        const provId = provinciasData.find(p => p.name === provName)?.id;
         if (!provId) return;
         
         const distritos = distritosData.filter(d => d.province_id === provId);
         distritos.forEach(d => {
             const opt = document.createElement('option');
-            opt.value = d.name;
+            opt.value = d.id;
             opt.textContent = d.name;
             distritoSelect.appendChild(opt);
         });
     }
 
+    // Inicializar al cargar si hay datos
+    if (departamentosData.length > 0) {
+        populateDepartamentos();
+    }
+
     departamentoSelect.addEventListener('change', function(){
-        populateProvincias(this.value);
+        populateProvincias(parseInt(this.value));
     });
 
     provinciaSelect.addEventListener('change', function(){
-        populateDistritos(this.value);
+        populateDistritos(parseInt(this.value));
     });
-
-    // Cargar opciones de horarios (tipo_gestion)
-    fetch('/api/horarios-base')
-        .then(r => r.json())
-        .then(data => {
-            tipoGestionSelect.innerHTML = '<option value="">Seleccionar</option>';
-            if (Array.isArray(data)) {
-                data.forEach(h => {
-                    const opt = document.createElement('option');
-                    opt.value = h.HorarioID;
-                    opt.textContent = h.HorarioCompleto;
-                    tipoGestionSelect.appendChild(opt);
-                });
-            }
-        }).catch(()=>{ tipoGestionSelect.innerHTML = '<option value="">Error al cargar</option>'; });
-
-    // Cargar opciones de tipos de contrato
-    const tipoContratoSelect = document.getElementById('tipo_contrato');
-    fetch('/api/tipos-contrato')
-        .then(r => r.json())
-        .then(data => {
-            tipoContratoSelect.innerHTML = '<option value="">Seleccionar</option>';
-            if (Array.isArray(data)) {
-                data.forEach(tc => {
-                    const opt = document.createElement('option');
-                    opt.value = tc.tipo_contrato;
-                    opt.textContent = tc.tipo_contrato;
-                    tipoContratoSelect.appendChild(opt);
-                });
-            }
-        }).catch(()=>{ tipoContratoSelect.innerHTML = '<option value="">Error al cargar</option>'; });
 
     // Buscar por DNI
     // Usamos `onclick` en vez de addEventListener para evitar handlers duplicados
@@ -393,23 +421,23 @@ document.addEventListener('DOMContentLoaded', function(){
                 buttonContainer.style.display = 'flex';
 
                 // Si la API retornó ubicación, intentar seleccionar en los selects dependientes
-                if (d.departamento && departamentosData) {
+                if (d.departamento && departamentosData.length > 0) {
                     const depName = d.departamento;
                     const depExists = departamentosData.find(x => x.name.toLowerCase() === (depName || '').toLowerCase());
                     if (depExists) {
-                        departamentoSelect.value = depExists.name;
-                        populateProvincias(depExists.name);
+                        departamentoSelect.value = depExists.id;
+                        populateProvincias(depExists.id);
                         if (d.provincia) {
                             const provName = d.provincia;
                             const provExists = provinciasData.find(p => p.name.toLowerCase() === (provName || '').toLowerCase() && p.department_id === depExists.id);
                             if (provExists) {
-                                provinciaSelect.value = provExists.name;
-                                populateDistritos(provExists.name);
+                                provinciaSelect.value = provExists.id;
+                                populateDistritos(provExists.id);
                                 if (d.distrito) {
                                     const distName = d.distrito;
                                     const distExists = distritosData.find(dist => dist.name.toLowerCase() === (distName || '').toLowerCase() && dist.province_id === provExists.id);
                                     if (distExists) {
-                                        distritoSelect.value = distExists.name;
+                                        distritoSelect.value = distExists.id;
                                     }
                                 }
                             }
