@@ -43,20 +43,21 @@
             \Log::warning('Error cargando archivos ubigeos: ' . $e->getMessage());
         }
     @endphp
-
-    <div class="max-w-4xl p-6">
-        <h2 class="text-2xl font-bold mb-6">Insertar Postulante</h2>
-
-        <div class="bg-white shadow-md rounded-lg p-6">
+    <div class="w-full">
         <!-- Sección: Búsqueda por DNI -->
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-700">Datos Personales (Búsqueda por DNI)</h3>
-            <div class="flex gap-4 items-end">
+        <div class="mb-6 bg-gradient-to-r from-celeste to-celeste rounded-lg p-5 border-2 border-azul-noche border-opacity-20">
+            <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
+                <i class="fas fa-search mr-2 text-naranja"></i>
+                Búsqueda por DNI
+            </h3>
+            <div class="flex gap-3 items-end">
                 <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
-                    <input id="dni-input" type="text" placeholder="Ingresa el DNI" class="border border-gray-300 p-2 w-full rounded" />
+                    <label class="block text-sm font-medium text-azul-noche mb-2">Número de DNI</label>
+                    <input id="dni-input" type="text" placeholder="Ingresa el DNI (8 dígitos)" maxlength="8" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" />
                 </div>
-                <button id="btn-buscar" type="button" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Buscar</button>
+                <button id="btn-buscar" type="button" class="bg-naranja hover:bg-naranja hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center">
+                    <i class="fas fa-search mr-2"></i>Buscar
+                </button>
             </div>
         </div>
 
@@ -64,56 +65,71 @@
         <form id="postulante-form">
             @csrf
             
+        <!-- Formulario de Postulante -->
+        <form id="postulante-form">
+            @csrf
+            
             <!-- Campos Autofill (Read-only) -->
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-700">Información Obtenida</h3>
+            <div class="mb-6 bg-gray-50 rounded-lg p-5 border border-gray-200">
+                <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
+                    <i class="fas fa-user-check mr-2 text-verde"></i>
+                    Información Obtenida
+                </h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
-                        <input name="nombres" id="nombres" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Nombres</label>
+                        <input name="nombres" id="nombres" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellido Paterno</label>
-                        <input name="ap_pat" id="ap_pat" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Paterno</label>
+                        <input name="ap_pat" id="ap_pat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Apellido Materno</label>
-                        <input name="ap_mat" id="ap_mat" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Materno</label>
+                        <input name="ap_mat" id="ap_mat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Nacimiento</label>
-                        <input name="fecha_nac" id="fecha_nac" type="date" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Fecha de Nacimiento</label>
+                        <input name="fecha_nac" id="fecha_nac" type="date" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
-                        <input name="direccion" id="direccion" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Dirección</label>
+                        <input name="direccion" id="direccion" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
-                        <input name="sexo" id="sexo" class="border border-gray-300 p-2 w-full rounded bg-gray-100" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Sexo</label>
+                        <input name="sexo" id="sexo" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
                     </div>
                 </div>
             </div>
 
             <!-- Campo DNI Oculto para envío -->
             <input type="hidden" name="dni" id="dni-field" />
+            <!-- Campo convocatoria_id (rellenado desde el botón de la convocatoria) -->
+            <input type="hidden" name="convocatoria_id" id="convocatoria-id" />
 
             <!-- Campos que el usuario debe rellenar -->
             <div class="mb-6" id="additional-fields" style="display: none;">
-                <h3 class="text-lg font-semibold mb-4 text-gray-700">Información Adicional (Obligatorio)</h3>
+                <div class="bg-celeste border-l-4 border-naranja p-4 mb-4 rounded-r-lg">
+                    <h3 class="text-lg font-semibold text-azul-noche flex items-center mb-1">
+                        <i class="fas fa-info-circle mr-2 text-naranja"></i>
+                        Información Adicional Requerida
+                    </h3>
+                    <p class="text-sm text-azul-noche text-opacity-70">Por favor completa todos los campos marcados con <span class="text-naranja font-semibold">*</span></p>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Celular <span class="text-red-600">*</span></label>
-                        <input name="celular" id="celular" type="tel" class="border border-gray-300 p-2 w-full rounded" required />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Celular <span class="text-naranja">*</span></label>
+                        <input name="celular" id="celular" type="tel" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo <span class="text-red-600">*</span></label>
-                        <input name="correo" id="correo" type="email" class="border border-gray-300 p-2 w-full rounded" required />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Correo Electrónico <span class="text-naranja">*</span></label>
+                        <input name="correo" id="correo" type="email" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Departamento <span class="text-red-600">*</span></label>
-                        <select name="departamento" id="departamento" class="border border-gray-300 p-2 w-full rounded" required>
-                            <option value="">Seleccionar</option>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Departamento <span class="text-naranja">*</span></label>
+                        <select name="departamento" id="departamento" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
+                            <option value="">Seleccionar departamento</option>
                             @php
                                 $departamentos = $ubigeos['departamentos'] ?? [];
                                 usort($departamentos, fn($a, $b) => strcmp($a['name'] ?? '', $b['name'] ?? ''));
@@ -125,21 +141,21 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Provincia <span class="text-red-600">*</span></label>
-                        <select name="provincia" id="provincia" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Provincia <span class="text-red-600">*</span></label>
+                        <select name="provincia" id="provincia" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar departamento primero</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Distrito <span class="text-red-600">*</span></label>
-                        <select name="distrito" id="distrito" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Distrito <span class="text-naranja">*</span></label>
+                        <select name="distrito" id="distrito" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar provincia primero</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Experiencia Call Center <span class="text-red-600">*</span></label>
-                        <select name="experiencia_callcenter" id="experiencia_callcenter" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Experiencia en Call Center <span class="text-red-600">*</span></label>
+                        <select name="experiencia_callcenter" id="experiencia_callcenter" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar</option>
                             <option value="si">Sí</option>
                             <option value="no">No</option>
@@ -147,8 +163,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Discapacidad <span class="text-red-600">*</span></label>
-                        <select name="discapacidad" id="discapacidad" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Discapacidad <span class="text-naranja">*</span></label>
+                        <select name="discapacidad" id="discapacidad" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar</option>
                             <option value="si">Sí</option>
                             <option value="no">No</option>
@@ -156,13 +172,13 @@
                     </div>
 
                     <div id="tipo_discapacidad_container" style="display: none;">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Discapacidad</label>
-                        <input name="tipo_discapacidad" id="tipo_discapacidad" class="border border-gray-300 p-2 w-full rounded" />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Tipo de Discapacidad</label>
+                        <input name="tipo_discapacidad" id="tipo_discapacidad" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Contrato <span class="text-red-600">*</span></label>
-                        <select name="tipo_contrato" id="tipo_contrato" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Tipo de Contrato <span class="text-naranja">*</span></label>
+                        <select name="tipo_contrato" id="tipo_contrato" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar</option>
                             @foreach($tiposContrato as $tc)
                                 <option value="{{ $tc->tipo_contrato }}">{{ $tc->tipo_contrato }}</option>
@@ -171,8 +187,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Modalidad Trabajo <span class="text-red-600">*</span></label>
-                        <select name="modalidad_trabajo" id="modalidad_trabajo" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Modalidad de Trabajo <span class="text-naranja">*</span></label>
+                        <select name="modalidad_trabajo" id="modalidad_trabajo" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar</option>
                             <option value="presencial">Presencial</option>
                             <option value="remoto">Remoto</option>
@@ -180,8 +196,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Gestión (Horario) <span class="text-red-600">*</span></label>
-                        <select name="tipo_gestion" id="tipo_gestion" class="border border-gray-300 p-2 w-full rounded" required>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Tipo de Gestión (Horario) <span class="text-naranja">*</span></label>
+                        <select name="tipo_gestion" id="tipo_gestion" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required>
                             <option value="">Seleccionar</option>
                             @foreach($horariosBase as $h)
                                 <option value="{{ $h->HorarioID }}">{{ $h->HorarioCompleto }}</option>
@@ -192,13 +208,16 @@
             </div>
 
             <!-- Botón Guardar (Oculto hasta buscar) -->
-            <div id="button-container" style="display: none;" class="flex gap-2">
-                <button id="btn-guardar" type="button" class="bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700 transition">Guardar Postulante</button>
-                <button id="btn-limpiar" type="button" class="bg-gray-400 text-white px-4 py-1 rounded text-sm hover:bg-gray-500 transition">Limpiar Formulario</button>
+            <div id="button-container" style="display: none;" class="flex gap-3 mt-6 pt-6 border-t border-azul-noche border-opacity-20">
+                <button id="btn-guardar" type="button" class="flex-1 bg-gradient-to-r from-verde to-verde hover:from-verde hover:to-verde hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center">
+                    <i class="fas fa-save mr-2"></i>Guardar Postulante
+                </button>
+                <button id="btn-limpiar" type="button" class="bg-azul-noche bg-opacity-60 hover:bg-opacity-80 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center">
+                    <i class="fas fa-redo mr-2"></i>Limpiar
+                </button>
             </div>
         </form>
     </div>
-</div>
 
     @php
         // Preparar datos para JS (en array PHP, no en JSON embebido)
@@ -206,7 +225,6 @@
         $provinciasJson = json_encode($ubigeos['provincias'] ?? []);
         $distritosJson = json_encode($ubigeos['distritos'] ?? []);
     @endphp
-    
     @push('scripts')
     <script>
         // Datos de ubigeos ya cargados desde PHP (sin necesidad de fetch)
@@ -486,6 +504,12 @@ document.addEventListener('DOMContentLoaded', function(){
         const formData = new FormData(form);
         const payload = {};
         formData.forEach((v,k)=> payload[k]=v);
+
+        // Asegurar que el formulario incluya la convocatoria asociada (si fue establecida desde la lista)
+        const convInput = document.getElementById('convocatoria-id');
+        if (convInput && convInput.value) {
+            payload.convocatoria_id = convInput.value;
+        }
         
         // Usar sexo numérico
         if(payload.sexo_numeric) {
@@ -511,12 +535,18 @@ document.addEventListener('DOMContentLoaded', function(){
         }).then(r=>r.json()).then(res=>{
             if(res.success){ 
                 Swal.fire('Éxito','Postulante guardado correctamente','success').then(() => {
+                    // Reset del formulario local
                     document.getElementById('postulante-form').reset();
                     document.getElementById('dni-input').value = '';
                     document.getElementById('dni-field').value = '';
                     additionalFields.style.display = 'none';
                     buttonContainer.style.display = 'none';
                     tipoDiscapacidadContainer.style.display = 'none';
+                    // Emitir evento global para que el modal (o la lista) recargue postulantes
+                    try {
+                        const createdConvId = payload.convocatoria_id || document.getElementById('convocatoria-id')?.value;
+                        window.dispatchEvent(new CustomEvent('postulante:created', { detail: { convocatoria_id: createdConvId } }));
+                    } catch(e){}
                 });
             } else {
                 Swal.fire('Error', res.error || 'No se pudo guardar', 'error');

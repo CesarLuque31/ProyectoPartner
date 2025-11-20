@@ -84,6 +84,12 @@ Route::middleware('auth')->group(function () {
         // FILTRAR CONVOCATORIAS (AJAX)
         Route::post('/convocatorias/filtrar', [TalentoController::class, 'filtrarConvocatorias'])
             ->name('convocatorias.filtrar');
+
+        // DETALLES DE CONVOCATORIA
+        Route::get('/convocatorias/{id}/detalles', [TalentoController::class, 'getDetallesConvocatoria'])
+            ->name('convocatorias.detalles');
+        Route::post('/convocatorias/{id}/detalles', [TalentoController::class, 'saveDetallesConvocatoria'])
+            ->name('convocatorias.detalles.save');
     });
 
     // RUTA GET: Si alguien intenta ir a /convocatorias, lo enviamos al dashboard
@@ -104,6 +110,14 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/postulantes', [\App\Http\Controllers\PostulanteController::class, 'store'])
             ->name('postulantes.store');
+        Route::post('/postulantes/modal-store', [\App\Http\Controllers\PostulanteController::class, 'storeFromModal'])
+            ->name('postulantes.modal.store');
+        Route::get('/postulantes/{id}', [\App\Http\Controllers\PostulanteController::class, 'show'])
+            ->name('postulantes.show');
+        
+        // Obtener postulantes por convocatoria (AJAX)
+        Route::get('/convocatorias/{id}/postulantes', [\App\Http\Controllers\PostulanteController::class, 'byConvocatoria'])
+            ->name('convocatorias.postulantes');
     });
 
     // Endpoint auxiliar para obtener horarios base (usado por la vista)

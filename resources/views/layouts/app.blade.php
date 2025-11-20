@@ -23,7 +23,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100" id="page-top"> 
+    <div class="min-h-screen bg-celeste" id="page-top"> 
         @include('layouts.navigation')
 
         @if(isset($header) || View::hasSection('header'))

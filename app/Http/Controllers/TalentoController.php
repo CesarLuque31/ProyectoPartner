@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Convocatoria;
+use App\Models\ConvocatoriaDetalle;
 use App\Models\User;
 use App\Http\Requests\ConvocatoriaStoreRequest;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 
 class TalentoController extends Controller
@@ -385,5 +387,101 @@ class TalentoController extends Controller
                 return collect([]);
             }
         }
+
+    /**
+     * Obtener detalles de una convocatoria
+     */
+    public function getDetallesConvocatoria($id): JsonResponse
+    {
+        try {
+            $convocatoria = Convocatoria::with(['usuario', 'detalle'])->findOrFail($id);
+            
+            // Obtener nombres de campaña y cargo
+            $campanias = $this->getCampanias()->keyBy('id');
+            $cargos = $this->getCargos()->keyBy('id');
+            
+            $campanaNombre = $campanias->get($convocatoria->campana)->nombre ?? 'N/A';
+            $cargoNombre = $cargos->get($convocatoria->tipo_cargo)->nombre ?? 'N/A';
+            
+            $data = [
+                'convocatoria' => [
+                    'id' => $convocatoria->id,
+                    'campana' => $campanaNombre,
+                    'requerimiento_personal' => $convocatoria->requerimiento_personal,
+                    'tipo_cargo' => $cargoNombre,
+                    'experiencia' => ucfirst($convocatoria->experiencia ?? 'N/A'),
+                    'fecha_inicio_capacitacion' => $convocatoria->fecha_inicio_capacitacion ? $convocatoria->fecha_inicio_capacitacion->format('Y-m-d') : null,
+                    'fecha_fin_capacitacion' => $convocatoria->fecha_fin_capacitacion ? $convocatoria->fecha_fin_capacitacion->format('Y-m-d') : null,
+                    'estado' => $convocatoria->estado,
+                    'created_at' => $convocatoria->created_at,
+                ],
+                'solicitante' => $convocatoria->usuario ? $convocatoria->usuario->name : 'N/A',
+                'detalles' => $convocatoria->detalle ? $convocatoria->detalle->toArray() : null,
+            ];
+
+            return response()->json($data);
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener detalles: ' . $e->getMessage());
+            return response()->json(['error' => 'No se pudieron obtener los detalles'], 500);
+        }
+    }
+
+    /**
+     * Guardar o actualizar detalles de una convocatoria
+     */
+    public function saveDetallesConvocatoria(Request $request, $id): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'razon_social_interna' => 'nullable|string|max:255',
+                'jefe_inmediato' => 'nullable|string|max:255',
+                'cliente' => 'nullable|string|max:255',
+                'servicio_asociado' => 'nullable|string|max:255',
+                'centro_costo' => 'nullable|string|max:255',
+                'modalidad_trabajo' => 'nullable|string|max:255',
+                'lugar_trabajo' => 'nullable|string|max:255',
+                'region_presencial' => 'nullable|string|max:255',
+                'tipo_contrato' => 'nullable|string|max:255',
+                'dias_laborables' => 'nullable|array',
+                'hora_inicio' => 'nullable|date_format:H:i',
+                'hora_fin' => 'nullable|date_format:H:i',
+                'remuneracion' => 'nullable|numeric|min:0',
+                'variable' => 'nullable|numeric|min:0',
+                'movilidad' => 'nullable|numeric|min:0',
+                'bono_permanencia' => 'nullable|string|in:si,no',
+                'tipo_requerimiento' => 'nullable|string|max:255',
+                'motivo_requerimiento' => 'nullable|string',
+                'fecha_sla' => 'nullable|date',
+                'fecha_objetivo' => 'nullable|date',
+                'tipo_proceso' => 'nullable|string|max:255',
+                'tipo_gestion' => 'nullable|string|max:255',
+            ]);
+
+            $convocatoria = Convocatoria::findOrFail($id);
+            
+            // Actualizar o crear los detalles
+            $detalle = ConvocatoriaDetalle::updateOrCreate(
+                ['convocatoria_id' => $id],
+                $validated
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Detalles guardados exitosamente',
+                'detalles' => $detalle
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error al guardar detalles: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'No se pudieron guardar los detalles'
+            ], 500);
+        }
+    }
     
 }

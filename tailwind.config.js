@@ -14,6 +14,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'celeste': '#BFDBF7',
+                'amarillo': '#F2E29F',
+                'azul-noche': '#011627',
+                'naranja': '#FE7F2D',
+                'verde': '#297373',
+            },
         },
     },
 

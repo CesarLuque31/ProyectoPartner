@@ -39,9 +39,15 @@ class Convocatoria extends Model
         'fecha_fin_capacitacion' => 'datetime',
     ];
 
-    // Relación con el cargo/reclutador (comentada)
-    // public function cargo()
-    // {
-    //     return $this->belongsTo(Cargo::class, 'cargo_id', 'CargoID');
-    // }
+    // Relación con el usuario que creó la convocatoria
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relación con los detalles de la convocatoria
+    public function detalle()
+    {
+        return $this->hasOne(ConvocatoriaDetalle::class, 'convocatoria_id');
+    }
 }

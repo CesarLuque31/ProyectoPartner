@@ -1,0 +1,675 @@
+@if(auth()->check() && auth()->user()->rol === 'jefe')
+    <div class="p-6 bg-white shadow sm:rounded-lg">
+        <h2 class="text-3xl font-bold mb-4 text-indigo-700">Listado de Convocatorias</h2>
+
+        <!-- Filtros -->
+        <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Filtros</h3>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Filtro por Campaña -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Campaña</label>
+                        <select id="filtro-campana" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                            <option value="">Todas</option>
+                            @foreach($campanias as $id => $nombre)
+                                <option value="{{ $id }}">{{ $nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Cargo -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                        <select id="filtro-cargo" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                            <option value="">Todos</option>
+                            @foreach($cargos as $id => $nombre)
+                                <option value="{{ $id }}">{{ $nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Estado -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="filtro-estado" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                            <option value="">Todos</option>
+                            <option value="Abierta">Abierta</option>
+                            <option value="Cerrada">Cerrada</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Fecha Inicio -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Desde Fecha Inicio</label>
+                        <input type="date" id="filtro-fecha-inicio" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                    </div>
+
+                    <!-- Filtro por Fecha Fin -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Hasta Fecha Fin</label>
+                        <input type="date" id="filtro-fecha-fin" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                    </div>
+
+                    <!-- Filtro por Reclutador Asignado -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Reclutador Asignado</label>
+                        <select id="filtro-reclutador" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                            <option value="">Cualquiera</option>
+                            <option value="sin-asignar">Sin Asignar</option>
+                            @foreach($reclutadores_disponibles as $id => $nombre)
+                                <option value="{{ $id }}">{{ $nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botones de Filtro -->
+                <div class="flex gap-2">
+                    <button type="button" id="btn-aplicar-filtros" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-semibold text-sm">
+                        Aplicar Filtros
+                    </button>
+                    <button type="button" id="btn-limpiar-filtros" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold text-sm">
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="convocatorias-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        <div id="convocatorias-empty" class="text-gray-600 hidden">No hay convocatorias que coincidan con los filtros seleccionados.</div>
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-indigo-700">Gestión de Postulantes</h2>
+
+                    <!-- Tabs -->
+                    <div class="mb-4">
+                        <nav class="flex space-x-2" id="modal-tabs">
+                            <button type="button" data-tab="postulantes" class="tab-btn active bg-gray-100 px-3 py-1 rounded text-sm font-semibold">Postulantes</button>
+                            <button type="button" data-tab="insertar" class="tab-btn bg-white px-3 py-1 rounded text-sm font-semibold">Insertar</button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab: Postulantes -->
+                    <div id="tab-postulantes" class="tab-content">
+                        <div id="modal-postulantes-list" class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Cargando postulantes...</p>
+                        </div>
+                        <!-- Detalle seleccionado -->
+                        <div id="modal-postulante-detalle" class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded hidden"></div>
+                    </div>
+
+                    <!-- Tab: Insertar -->
+                    <div id="tab-insertar" class="tab-content hidden">
+                        <!-- Formulario compacto de Postulante -->
+                        <form id="form-insertar-postulante" autocomplete="off">
+                            <input type="hidden" name="convocatoria_id" id="modal-convocatoria-id" />
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
+                                <div class="flex gap-2">
+                                    <input type="text" name="dni" id="modal-dni" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="Ingresa el DNI" />
+                                    <button type="button" id="modal-buscar-dni" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Buscar</button>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Información Obtenida</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Nombres</label>
+                                        <input type="text" name="nombres" id="modal-nombres" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" readonly />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Apellido Paterno</label>
+                                        <input type="text" name="ap_pat" id="modal-apellido-paterno" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" readonly />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Apellido Materno</label>
+                                        <input type="text" name="ap_mat" id="modal-apellido-materno" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" readonly />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Fecha Nacimiento</label>
+                                        <input type="text" name="fecha_nac" id="modal-fecha-nacimiento" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" placeholder="dd/mm/aaaa" readonly />
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="block text-sm text-gray-700">Dirección</label>
+                                    <input type="text" name="direccion" id="modal-direccion" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" readonly />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="block text-sm text-gray-700">Sexo</label>
+                                    <input type="text" name="sexo" id="modal-sexo" class="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-100" readonly />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h3 class="text-sm font-semibold text-gray-700 mb-2">Información Adicional (Obligatorio)</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Celular</label>
+                                        <input type="text" name="celular" id="modal-celular" class="w-full border border-gray-200 rounded px-3 py-2 text-sm" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Correo</label>
+                                        <input type="email" name="correo" id="modal-correo" class="w-full border border-gray-200 rounded px-3 py-2 text-sm" required />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Departamento</label>
+                                        <select name="departamento" id="modal-departamento" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Provincia</label>
+                                        <select name="provincia" id="modal-provincia" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar departamento primero</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Distrito</label>
+                                        <select name="distrito" id="modal-distrito" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar provincia primero</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Experiencia Call Center</label>
+                                        <select name="experiencia_callcenter" id="modal-experiencia" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                            <option value="si">Sí</option>
+                                            <option value="no">No</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Discapacidad</label>
+                                        <select name="discapacidad" id="modal-discapacidad" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                            <option value="no">No</option>
+                                            <option value="si">Sí</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Tipo Contrato</label>
+                                        <select name="tipo_contrato" id="modal-tipo-contrato" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Modalidad Trabajo</label>
+                                        <select name="modalidad_trabajo" id="modal-modalidad" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                            <option value="presencial">Presencial</option>
+                                            <option value="remoto">Remoto</option>
+                                            <option value="mixto">Mixto</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700">Tipo Gestión (Horario)</label>
+                                        <select name="tipo_gestion" id="modal-tipo-gestion" class="w-full border border-gray-200 rounded px-3 py-2 text-sm">
+                                            <option value="">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-2 mt-6">
+                                <button type="button" id="modal-cancelar" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded font-semibold">Cancelar</button>
+                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold">Guardar Postulante</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
+@if(auth()->check() && auth()->user()->rol === 'jefe')
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filtros = {
+            campana: document.getElementById('filtro-campana'),
+            cargo: document.getElementById('filtro-cargo'),
+            estado: document.getElementById('filtro-estado'),
+            fechaInicio: document.getElementById('filtro-fecha-inicio'),
+            fechaFin: document.getElementById('filtro-fecha-fin'),
+            reclutador: document.getElementById('filtro-reclutador')
+        };
+        const btnAplicar = document.getElementById('btn-aplicar-filtros');
+        const btnLimpiar = document.getElementById('btn-limpiar-filtros');
+        const container = document.getElementById('convocatorias-container');
+        const emptyMsg = document.getElementById('convocatorias-empty');
+
+        function renderConvocatoriaCard(c, campanias, cargos, horarios, reclutadores_disponibles) {
+            // Construir HTML de la tarjeta (solo los datos necesarios)
+            let turnos = '';
+            if (Array.isArray(c.turnos_labels) && c.turnos_labels.length > 0) {
+                c.turnos_labels.forEach(lbl => {
+                    turnos += `<span class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-medium mr-2 mb-2">${lbl}</span>`;
+                });
+            } else {
+                turnos = '<p class="text-gray-500">Sin turnos asignados</p>';
+            }
+
+            let recAsignados = '';
+            if (Array.isArray(c.reclutadores_asignados_labels) && c.reclutadores_asignados_labels.length > 0) {
+                c.reclutadores_asignados_labels.forEach(rec => {
+                    recAsignados += `<span class="inline-flex items-center px-2 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-xs font-medium mr-2 mb-2">${rec}</span>`;
+                });
+            } else {
+                recAsignados = `<div class="flex items-center mt-2"><i class="fas fa-exclamation-circle text-yellow-500 mr-2"></i><p class="text-yellow-700 text-sm">Sin reclutadores asignados</p></div>`;
+            }
+
+            return `
+            <div class="bg-white border rounded-lg p-6 shadow-sm convocatoria-item">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-xs text-gray-400">Creada: ${c.created_at}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-semibold ${c.estado === 'Abierta' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                        ${c.estado}
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">CAMPAÑA</p>
+                        <p class="text-indigo-600 font-semibold">${c.campania_nombre}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">CARGO</p>
+                        <p class="text-gray-700 font-semibold">${c.cargo_nombre}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">VACANTES</p>
+                        <p class="text-gray-700">${c.requerimiento_personal}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">EXPERIENCIA REQUERIDA</p>
+                        <p class="text-gray-700">${c.experiencia_label}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">INICIO CAPACITACIÓN</p>
+                        <p class="text-gray-700">${c.fecha_inicio_capacitacion}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-semibold">FIN CAPACITACIÓN</p>
+                        <p class="text-gray-700">${c.fecha_fin_capacitacion}</p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-xs text-gray-500 font-semibold">TURNOS</p>
+                    <div class="flex flex-wrap gap-2">${turnos}</div>
+                </div>
+                <div class="mt-6 flex items-center space-x-1">
+                    <button type="button" class="swal-assign-btn bg-blue-500 hover:bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
+                        <i class="fas fa-users mr-1"></i> Asignar Reclutadores
+                    </button>
+                    <form action="/convocatorias/${c.id}" method="POST" class="inline delete-conv-form">
+                        <input type="hidden" name="_token" value="${c.csrf_token}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="button" class="swal-delete-btn bg-red-500 hover:bg-red-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
+                            <i class="fas fa-trash mr-1"></i> Eliminar
+                        </button>
+                    </form>
+                    <button type="button" class="insertar-postulante-btn bg-green-600 hover:bg-green-700 text-white px-2 py-0.5 rounded text-xs font-semibold" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
+                        <i class="fas fa-user-plus mr-1"></i> Insertar Postulante
+                    </button>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-xs text-gray-500 font-semibold">RECLUTADORES ASIGNADOS</p>
+                    <div class="flex flex-wrap gap-2 mt-2">${recAsignados}</div>
+                </div>
+            </div>
+            `;
+        }
+
+        function aplicarFiltros() {
+            // Construir objeto de filtros
+            const data = {
+                campana: filtros.campana.value,
+                cargo: filtros.cargo.value,
+                estado: filtros.estado.value,
+                fecha_inicio: filtros.fechaInicio.value,
+                fecha_fin: filtros.fechaFin.value,
+                reclutador: filtros.reclutador.value
+            };
+            container.innerHTML = '';
+            emptyMsg.classList.add('hidden');
+            fetch('/convocatorias/filtrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if (Array.isArray(resp.convocatorias) && resp.convocatorias.length > 0) {
+                    resp.convocatorias.forEach(c => {
+                        container.innerHTML += renderConvocatoriaCard(c, resp.campanias, resp.cargos, resp.horarios, resp.reclutadores_disponibles);
+                    });
+                } else {
+                    emptyMsg.classList.remove('hidden');
+                }
+            })
+            .catch(() => {
+                emptyMsg.classList.remove('hidden');
+            });
+        }
+
+        function limpiarFiltros() {
+            filtros.campana.value = '';
+            filtros.cargo.value = '';
+            filtros.estado.value = '';
+            filtros.fechaInicio.value = '';
+            filtros.fechaFin.value = '';
+            filtros.reclutador.value = '';
+            container.innerHTML = '';
+            emptyMsg.classList.add('hidden');
+        }
+
+        if (btnAplicar) btnAplicar.addEventListener('click', aplicarFiltros);
+        if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
+
+        // Aquí puedes agregar los listeners para los botones de eliminar y asignar reclutadores después de renderizar
+        // (puedes usar event delegation si lo prefieres)
+            // Listener global para botones 'Insertar Postulante' generados dinámicamente
+            document.addEventListener('click', function(e){
+                const btn = e.target.closest && e.target.closest('.insertar-postulante-btn');
+                if (!btn) return;
+                const convId = btn.getAttribute('data-conv-id');
+                const convName = btn.getAttribute('data-conv-name');
+
+                // Si el formulario de insertar postulante está en la página, rellenar el hidden
+                const convInput = document.getElementById('convocatoria-id');
+                if (convInput) {
+                    convInput.value = convId || '';
+                    // Llevar foco al formulario para que el usuario lo vea
+                    try {
+                        convInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    } catch(e){}
+                }
+
+                // Emitir un evento global por si el formulario está en un modal y quiere cargar postulantes
+                window.dispatchEvent(new CustomEvent('convocatoria:select', { detail: { id: convId, name: convName } }));
+            });
+
+        // Modal: pestañas
+        const tabButtons = document.querySelectorAll('#modal-tabs .tab-btn');
+        function openTab(name) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('#modal-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.querySelector(`#modal-tabs .tab-btn[data-tab="${name}"]`);
+            if (btn) btn.classList.add('active');
+            const cont = document.getElementById(name === 'postulantes' ? 'tab-postulantes' : 'tab-insertar');
+            if (cont) cont.classList.remove('hidden');
+        }
+        tabButtons && tabButtons.forEach(b => b.addEventListener('click', function(){ openTab(this.getAttribute('data-tab')); }));
+
+        // Modal: abrir al seleccionar convocatoria
+        const modal = document.getElementById('modal-insertar-postulante');
+        const modalList = document.getElementById('modal-postulantes-list');
+        const modalClose = document.getElementById('cerrar-modal-postulante');
+        const modalCancelar = document.getElementById('modal-cancelar');
+
+        function openModal(convId, convName) {
+            if (!modal) return;
+            document.getElementById('modal-convocatoria-id').value = convId || '';
+            modal.classList.remove('hidden');
+            // Abrir la pestaña de postulantes por defecto
+            openTab('postulantes');
+            loadPostulantes(convId);
+        }
+
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.add('hidden');
+            // limpiar formulario
+            document.getElementById('form-insertar-postulante').reset();
+            modalList.innerHTML = '';
+        }
+
+        modalClose && modalClose.addEventListener('click', closeModal);
+        modalCancelar && modalCancelar.addEventListener('click', closeModal);
+
+        // Escuchar evento global disparado al hacer click en botón 'Insertar Postulante'
+        window.addEventListener('convocatoria:select', function(e){
+            const id = e.detail && e.detail.id;
+            if (id) openModal(id, e.detail.name);
+        });
+
+        // Cargar postulantes asociados a la convocatoria
+        async function loadPostulantes(convId) {
+            if (!modalList) return;
+            modalList.innerHTML = '<p class="text-sm text-gray-600">Cargando postulantes...</p>';
+            try {
+                const res = await fetch(`/convocatorias/${convId}/postulantes`, { headers: { 'Accept': 'application/json' } });
+                const j = await res.json();
+                if (j.success && Array.isArray(j.data)) {
+                    renderPostulantes(j.data);
+                } else {
+                    modalList.innerHTML = '<p class="text-sm text-gray-600">No hay postulantes para esta convocatoria.</p>';
+                }
+            } catch (err) {
+                modalList.innerHTML = '<p class="text-sm text-red-600">Error cargando postulantes</p>';
+            }
+        }
+
+        function renderPostulantes(items) {
+            const detalleCont = document.getElementById('modal-postulante-detalle');
+            if (detalleCont) detalleCont.classList.add('hidden');
+            if (!modalList) return;
+            if (!items || items.length === 0) {
+                modalList.innerHTML = '<p class="text-sm text-gray-600">Sin postulantes aún</p>';
+                return;
+            }
+            let html = '<div class="space-y-2 mb-4">';
+            items.forEach(p => {
+                html += `<div class="p-2 border rounded bg-gray-50 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-semibold">${p.nombres} ${p.ap_pat} ${p.ap_mat}</p>
+                        <p class="text-xs text-gray-500">DNI: ${p.dni} • ${p.correo || ''}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="postulante-detalles-btn bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded text-xs font-semibold" data-id="${p.id}">Detalles</button>
+                        <div class="text-xs text-gray-400">${p.created_at}</div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            modalList.innerHTML = html;
+        }
+
+        // Buscar DNI dentro del modal
+        document.getElementById('modal-buscar-dni').addEventListener('click', async function(){
+            const dni = document.getElementById('modal-dni').value;
+            if (!dni || dni.length !== 8) { Swal.fire('Error','Ingrese un DNI válido (8 dígitos)','error'); return; }
+            try {
+                const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const resp = await fetch(document.querySelector('meta[name="route-consulta"]').getAttribute('content') || '/postulantes/consulta', {
+                    method: 'POST', headers: { 'Content-Type':'application/json','X-CSRF-TOKEN': csrf, 'Accept':'application/json' }, body: JSON.stringify({ dni: dni })
+                });
+                const j = await resp.json();
+                if (j.success && j.data) {
+                    const d = j.data;
+                    document.getElementById('modal-nombres').value = d.nombres || '';
+                    document.getElementById('modal-apellido-paterno').value = d.ap_pat || '';
+                    document.getElementById('modal-apellido-materno').value = d.ap_mat || '';
+                    document.getElementById('modal-fecha-nacimiento').value = d.fecha_nac || '';
+                    document.getElementById('modal-direccion').value = d.direccion || '';
+                    document.getElementById('modal-sexo').value = (d.sexo==='1' || d.sexo===1) ? 'Masculino' : (d.sexo==='2' || d.sexo===2) ? 'Femenino' : d.sexo || '';
+                } else {
+                    Swal.fire('Error', j.error || 'No se encontraron datos', 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error','Error en la consulta','error');
+            }
+        });
+
+        // Enviar formulario compacto desde modal
+        document.getElementById('form-insertar-postulante').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const convId = document.getElementById('modal-convocatoria-id').value;
+            const payload = {
+                convocatoria_id: convId,
+                dni: document.getElementById('modal-dni').value,
+                nombres: document.getElementById('modal-nombres').value,
+                ap_pat: document.getElementById('modal-apellido-paterno').value,
+                ap_mat: document.getElementById('modal-apellido-materno').value,
+                fecha_nac: document.getElementById('modal-fecha-nacimiento').value,
+                direccion: document.getElementById('modal-direccion').value,
+                sexo: document.getElementById('modal-sexo').value,
+                celular: document.getElementById('modal-celular').value,
+                correo: document.getElementById('modal-correo').value,
+                departamento: document.getElementById('modal-departamento') ? document.getElementById('modal-departamento').value : null,
+                provincia: document.getElementById('modal-provincia') ? document.getElementById('modal-provincia').value : null,
+                distrito: document.getElementById('modal-distrito') ? document.getElementById('modal-distrito').value : null,
+                experiencia_callcenter: document.getElementById('modal-experiencia').value,
+                discapacidad: document.getElementById('modal-discapacidad').value,
+                tipo_contrato: document.getElementById('modal-tipo-contrato') ? document.getElementById('modal-tipo-contrato').value : null,
+                modalidad_trabajo: document.getElementById('modal-modalidad') ? document.getElementById('modal-modalidad').value : null,
+                tipo_gestion: document.getElementById('modal-tipo-gestion') ? document.getElementById('modal-tipo-gestion').value : null,
+            };
+            try {
+                const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const res = await fetch(document.querySelector('meta[name="route-store"]').getAttribute('content') || '/postulantes/modal-store', {
+                    method: 'POST', headers: { 'Content-Type':'application/json','X-CSRF-TOKEN': csrf, 'Accept':'application/json' }, body: JSON.stringify(payload)
+                });
+                const j = await res.json();
+                if (j.success) {
+                    Swal.fire('Éxito','Postulante creado','success');
+                    loadPostulantes(convId);
+                    // limpiar formulario
+                    document.getElementById('form-insertar-postulante').reset();
+                } else {
+                    Swal.fire('Error', j.error || (j.errors? JSON.stringify(j.errors): 'No se pudo guardar'), 'error');
+                }
+            } catch (err) {
+                Swal.fire('Error','Error al guardar postulante','error');
+            }
+        });
+
+        // Listener para botón 'Detalles' de cada postulante
+        document.addEventListener('click', async function(e){
+            const btn = e.target.closest && e.target.closest('.postulante-detalles-btn');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            const detalleCont = document.getElementById('modal-postulante-detalle');
+            if (!detalleCont) return;
+            detalleCont.classList.remove('hidden');
+            detalleCont.innerHTML = '<p class="text-sm text-gray-600">Cargando detalles...</p>';
+            try {
+                const res = await fetch(`/postulantes/${id}`, { headers: { 'Accept': 'application/json' } });
+                const j = await res.json();
+                if (j.success && j.data) {
+                    const d = j.data;
+                    let html = `<h4 class="font-semibold mb-2">${d.nombres} ${d.ap_pat} ${d.ap_mat}</h4>`;
+                    html += `<p class="text-sm"><strong>DNI:</strong> ${d.dni}</p>`;
+                    html += `<p class="text-sm"><strong>Correo:</strong> ${d.correo || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Celular:</strong> ${d.celular || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Fecha Nac:</strong> ${d.fecha_nac || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Dirección:</strong> ${d.direccion || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Provincia / Distrito:</strong> ${d.provincia || ''} / ${d.distrito || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Experiencia Call:</strong> ${d.experiencia_callcenter || ''}</p>`;
+                    html += `<p class="text-sm"><strong>Discapacidad:</strong> ${d.discapacidad || ''} ${d.tipo_discapacidad? '('+d.tipo_discapacidad+')' : ''}</p>`;
+                    html += `<p class="text-sm"><strong>Modalidad:</strong> ${d.modalidad_trabajo || ''} • <strong>Contrato:</strong> ${d.tipo_contrato || ''}</p>`;
+                    html += `<p class="text-sm text-gray-500 mt-2"><small>Creado: ${d.created_at}</small></p>`;
+                    detalleCont.innerHTML = html;
+                } else {
+                    detalleCont.innerHTML = '<p class="text-sm text-red-600">No se encontraron detalles</p>';
+                }
+            } catch (err) {
+                detalleCont.innerHTML = '<p class="text-sm text-red-600">Error cargando detalles</p>';
+            }
+        });
+
+        // Inicializar selects del modal (departamento / provincia / distrito) usando JSON locales y cargar tipos
+        async function initModalSelects() {
+            const deptSelect = document.getElementById('modal-departamento');
+            const provSelect = document.getElementById('modal-provincia');
+            const distSelect = document.getElementById('modal-distrito');
+            const tipoContratoSelect = document.getElementById('modal-tipo-contrato');
+            const tipoGestionSelect = document.getElementById('modal-tipo-gestion');
+
+            // Rutas a los JSON locales en public/data
+            const DEPT_URL = '/data/ubigeo_peru_2016_departamentos.json';
+            const PROV_URL = '/data/ubigeo_peru_2016_provincias.json';
+            const DIST_URL = '/data/ubigeo_peru_2016_distritos.json';
+
+            // Cargar los tres archivos en paralelo
+            let departamentos = [], provincias = [], distritos = [];
+            try {
+                const [dRes, pRes, distRes] = await Promise.all([
+                    fetch(DEPT_URL, { headers: { 'Accept':'application/json' } }),
+                    fetch(PROV_URL, { headers: { 'Accept':'application/json' } }),
+                    fetch(DIST_URL, { headers: { 'Accept':'application/json' } })
+                ]);
+                if (dRes.ok) departamentos = await dRes.json();
+                if (pRes.ok) provincias = await pRes.json();
+                if (distRes.ok) distritos = await distRes.json();
+            } catch (e) {
+                // Si falla la carga, mantenemos arrays vacíos y el fallback seguirá funcionando
+                console.warn('No se pudieron cargar archivos de ubigeo locales:', e);
+            }
+
+            // Poblar departamentos
+            if (deptSelect) {
+                deptSelect.innerHTML = '<option value="">Seleccionar</option>';
+                departamentos.forEach(d => {
+                    const o = document.createElement('option'); o.value = d.id; o.textContent = d.name; deptSelect.appendChild(o);
+                });
+
+                deptSelect.addEventListener('change', function(){
+                    const deptId = this.value;
+                    provSelect.innerHTML = '<option value="">Seleccionar</option>';
+                    distSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
+                    const provs = provincias.filter(p => p.department_id === deptId);
+                    provs.forEach(p => { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; provSelect.appendChild(o); });
+                });
+
+                provSelect.addEventListener('change', function(){
+                    const provId = this.value;
+                    distSelect.innerHTML = '<option value="">Seleccionar</option>';
+                    const dList = distritos.filter(d => d.province_id === provId);
+                    dList.forEach(d => { const o=document.createElement('option'); o.value=d.id; o.textContent=d.name; distSelect.appendChild(o); });
+                });
+            }
+
+            // Helper para intentar fetch y devolver fallback si falla
+            async function fetchOrFallback(url, fallback) {
+                try {
+                    const r = await fetch(url, { headers: { 'Accept':'application/json' } });
+                    if (!r.ok) throw new Error('no ok');
+                    const j = await r.json();
+                    if (Array.isArray(j)) return j;
+                    if (j.data && Array.isArray(j.data)) return j.data;
+                    return fallback;
+                } catch (e) { return fallback; }
+            }
+
+            const contratoFallback = ['Indefinido','Temporal','Prácticas'];
+            const gestionFallback = ['Mañana','Tarde','Noche'];
+
+            if (tipoContratoSelect) {
+                const list = await fetchOrFallback('/api/tipos-contrato', contratoFallback);
+                tipoContratoSelect.innerHTML = '<option value="">Seleccionar</option>';
+                list.forEach(v => { const o=document.createElement('option'); o.value = v.id ?? v; o.textContent = v.nombre ?? v; tipoContratoSelect.appendChild(o); });
+            }
+
+            if (tipoGestionSelect) {
+                const list = await fetchOrFallback('/api/horarios-base', gestionFallback);
+                tipoGestionSelect.innerHTML = '<option value="">Seleccionar</option>';
+                list.forEach(v => { const o=document.createElement('option'); o.value = v.id ?? v; o.textContent = v.nombre ?? v; tipoGestionSelect.appendChild(o); });
+            }
+        }
+
+        // Ejecutar inicialización de selects al cargar la página (y antes de abrir modal)
+        initModalSelects();
+    });
+    </script>
+@endpush
+@endif
