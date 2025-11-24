@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController; 
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\TalentoController;
 use App\Http\Middleware\RolesAccess;
@@ -14,7 +14,7 @@ if (env('APP_DEBUG')) {
                 'usuario' => env('API_EXTERNAL_USER'),
                 'password' => env('API_EXTERNAL_PASS'),
             ]);
-            
+
             return [
                 'auth_status' => $resp->status(),
                 'auth_response' => $resp->json(),
@@ -36,8 +36,8 @@ Route::get('/', function () {
 // 2. DASHBOARD: CORRECCIÓN CLAVE - PASAR EL USUARIO A LA VISTA
 Route::get('/dashboard', function () {
     // Definimos la variable $user aquí
-    $user = auth()->user(); 
-    
+    $user = auth()->user();
+
     return view('dashboard', [
         'user' => $user // Pasamos la variable $user a la vista
     ]);
@@ -45,7 +45,7 @@ Route::get('/dashboard', function () {
 
 // 3. RUTAS PROTEGIDAS POR AUTH
 Route::middleware('auth')->group(function () {
-    
+
     // PERFIL 
     Route::patch('/user/profile', [ProfileController::class, 'updateProfileInformation'])->name('user.profile.update');
     Route::patch('/user/password', [ProfileController::class, 'updatePassword'])->name('user.password.update');
@@ -60,8 +60,8 @@ Route::middleware('auth')->group(function () {
         })->name('admin.index');
 
         Route::get('/admin/users/create', function () {
-            return redirect()->route('dashboard'); 
-        })->name('admin.users.create'); 
+            return redirect()->route('dashboard');
+        })->name('admin.users.create');
 
         Route::get('/clientes', [ClienteController::class, 'index'])->name('clientes.index');
 
@@ -112,25 +112,31 @@ Route::middleware('auth')->group(function () {
             ->name('postulantes.store');
         Route::post('/postulantes/modal-store', [\App\Http\Controllers\PostulanteController::class, 'storeFromModal'])
             ->name('postulantes.modal.store');
-        Route::get('/postulantes/{id}', [\App\Http\Controllers\PostulanteController::class, 'show'])
-            ->name('postulantes.show');
-        
+        // Importación masiva (Mover antes de {id} para evitar conflictos)
+        Route::get('/postulantes/descargar-plantilla', [\App\Http\Controllers\PostulanteController::class, 'descargarPlantilla'])
+            ->name('postulantes.descargar-plantilla');
+        Route::post('/postulantes/importar', [\App\Http\Controllers\PostulanteController::class, 'importar'])
+            ->name('postulantes.importar');
+
         // Obtener postulantes por convocatoria (AJAX)
         Route::get('/convocatorias/{id}/postulantes', [\App\Http\Controllers\PostulanteController::class, 'byConvocatoria'])
             ->name('convocatorias.postulantes');
+
+        Route::get('/postulantes/{id}', [\App\Http\Controllers\PostulanteController::class, 'show'])
+            ->name('postulantes.show');
     });
 
     // Endpoint auxiliar para obtener horarios base (usado por la vista)
     Route::get('/api/horarios-base', [\App\Http\Controllers\TalentoController::class, 'getHorariosBase']);
-    
+
     // Endpoint auxiliar para obtener tipos de contrato (usado por la vista)
     Route::get('/api/tipos-contrato', [\App\Http\Controllers\TalentoController::class, 'getTiposContrato']);
 });
 
 // DEBUG ROUTES (SOLO PARA DEVELOPMENT)
 if (app()->environment('local')) {
-    require __DIR__.'/debug.php';
+    require __DIR__ . '/debug.php';
 }
 
 // 4. INCLUIR RUTAS DE AUTH
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

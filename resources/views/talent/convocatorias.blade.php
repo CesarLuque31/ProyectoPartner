@@ -17,119 +17,163 @@
         }
     @endphp
 
-    <div class="p-6 bg-white shadow sm:rounded-lg">
-    <h2 class="text-3xl font-bold mb-4 text-indigo-700">Crear Nueva Convocatoria</h2>
-    <p class="text-gray-600 mb-6">Completa los detalles de la nueva campaña de reclutamiento.</p>
-
-    <form method="POST" action="{{ route('convocatorias.store') }}" class="space-y-6">
-        @csrf
-
-        {{-- PRIMERA FILA (CAMPANA & REQUERIMIENTO) --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div>
-                <x-input-label for="campana" value="Nombre de la Campaña" />
-                <select id="campana" name="campana" required class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                    <option value="" disabled {{ old('campana') ? '' : 'selected' }}>Selecciona una Campaña</option>
-                    @if($campanias->isEmpty())
-                        <option value="" disabled>-- No se pudieron cargar las campañas --</option>
-                    @endif
-                    @foreach($campanias as $camp)
-                        <option value="{{ $camp->id }}" {{ old('campana') == $camp->id ? 'selected' : '' }}>{{ $camp->nombre }}</option>
-                    @endforeach
-                </select>
-                <x-input-error :messages="$errors->get('campana')" class="mt-2" />
-            </div>
-
-            <div>
-                <x-input-label for="requerimiento_personal" value="Requerimiento de Personal (Número)" />
-                <x-text-input id="requerimiento_personal" class="block mt-1 w-full" type="number" name="requerimiento_personal" :value="old('requerimiento_personal')" min="1" required />
-                <x-input-error :messages="$errors->get('requerimiento_personal')" class="mt-2" />
-            </div>
+    <div class="bg-white shadow-xl rounded-xl border-2 border-azul-noche border-opacity-20 overflow-hidden">
+        <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-6 py-4">
+            <h2 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-bullhorn mr-2"></i>
+                Crear Nueva Convocatoria
+            </h2>
         </div>
+        <div class="p-6">
+            <p class="text-azul-noche text-opacity-70 mb-6 flex items-center">
+                <i class="fas fa-info-circle mr-2 text-naranja"></i>
+                Completa los detalles de la nueva campaña de reclutamiento.
+            </p>
 
-        {{-- SEGUNDA FILA (TIPO DE CARGO & EXPERIENCIA) --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form method="POST" action="{{ route('convocatorias.store') }}" class="space-y-6">
+                @csrf
 
-            {{-- CAMPO: TIPO DE CARGO (Texto libre) --}}
-            <div>
-                <x-input-label for="tipo_cargo" value="Tipo de Cargo" />
-                <select id="tipo_cargo" name="tipo_cargo" required class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                    <option value="" disabled {{ old('tipo_cargo') ? '' : 'selected' }}>Selecciona un Cargo</option>
-                    @if($cargos->isEmpty())
-                        <option value="" disabled>-- No se pudieron cargar los cargos --</option>
-                    @endif
-                    @foreach($cargos as $cargo)
-                        <option value="{{ $cargo->id }}" {{ old('tipo_cargo') == $cargo->id ? 'selected' : '' }}>{{ $cargo->nombre }}</option>
-                    @endforeach
-                </select>
-                <x-input-error :messages="$errors->get('tipo_cargo')" class="mt-2" />
-            </div>
+                {{-- SECCIÓN: INFORMACIÓN BÁSICA --}}
+                <div class="bg-celeste bg-opacity-30 p-6 rounded-lg border border-azul-noche border-opacity-20">
+                    <h3 class="text-lg font-bold text-azul-noche mb-4 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-naranja"></i>
+                        Información Básica
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <x-input-label for="campana" value="Nombre de la Campaña" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-building absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <select id="campana" name="campana" required class="block w-full pl-10 pr-3 py-2 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all appearance-none bg-white">
+                                    <option value="" disabled {{ old('campana') ? '' : 'selected' }}>Selecciona una Campaña</option>
+                                    @if($campanias->isEmpty())
+                                        <option value="" disabled>-- No se pudieron cargar las campañas --</option>
+                                    @endif
+                                    @foreach($campanias as $camp)
+                                        <option value="{{ $camp->id }}" {{ old('campana') == $camp->id ? 'selected' : '' }}>{{ $camp->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-azul-noche pointer-events-none"></i>
+                            </div>
+                            <x-input-error :messages="$errors->get('campana')" class="mt-2" />
+                        </div>
 
-            {{-- CAMPO: EXPERIENCIA --}}
-            <div>
-                <x-input-label for="experiencia" value="¿Requiere Experiencia Previa?" />
-                <select id="experiencia" name="experiencia" required class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                    <option value="" disabled selected>Selecciona una Opción</option>
-                    <option value="si" {{ old('experiencia') == 'si' ? 'selected' : '' }}>Sí</option>
-                    <option value="no" {{ old('experiencia') == 'no' ? 'selected' : '' }}>No</option>
-                    <option value="indiferente" {{ old('experiencia') == 'indiferente' ? 'selected' : '' }}>Indiferente</option>
-                </select>
-                <x-input-error :messages="$errors->get('experiencia')" class="mt-2" />
-            </div>
-        </div>
-
-        {{-- TERCERA FILA (TURNO MULTISELECT CON SELECT2) --}}
-        <div class="grid grid-cols-1 gap-6">
-            <div>
-                <x-input-label for="turnos" value="Turno(s) Disponibles (Selección Múltiple) - (Opcional)" />
-                
-                {{-- Elemento Select2 --}}
-                <select id="turnos" name="turnos[]" multiple
-                        class="select2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
-                    
-                    @if($horarios->isEmpty())
-                        <option value="" disabled>-- Error de Conexión o Horarios Vacíos --</option>
-                    @endif
-                    @foreach ($horarios as $horario)
-                        <option value="{{ $horario->HorarioID }}" 
-                                {{ in_array($horario->HorarioID, old('turnos', [])) ? 'selected' : '' }}>
-                            {{ $horario->HorarioCompleto }}
-                        </option>
-                    @endforeach
-                </select>
-                <x-input-error :messages="$errors->get('turnos')" class="mt-2" />
-                
-            </div>
-        </div>
-
-        {{-- CUARTA FILA (FECHA DE CAPACITACIÓN) --}}
-        <div class="pt-4 border-t border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Rango de Capacitación</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {{-- FECHA INICIO --}}
-                <div>
-                    <x-input-label for="fecha_inicio_capacitacion" value="Fecha de Inicio de Capacitación" />
-                    <x-text-input id="fecha_inicio_capacitacion" class="block mt-1 w-full" type="date" name="fecha_inicio_capacitacion" :value="old('fecha_inicio_capacitacion')" min="{{ now()->format('Y-m-d') }}" required />
-                    <x-input-error :messages="$errors->get('fecha_inicio_capacitacion')" class="mt-2" />
+                        <div>
+                            <x-input-label for="requerimiento_personal" value="Requerimiento de Personal" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-users absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <x-text-input id="requerimiento_personal" class="block w-full pl-10 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all" type="number" name="requerimiento_personal" :value="old('requerimiento_personal')" min="1" required />
+                            </div>
+                            <x-input-error :messages="$errors->get('requerimiento_personal')" class="mt-2" />
+                        </div>
+                    </div>
                 </div>
 
-                {{-- FECHA FIN --}}
-                <div>
-                    <x-input-label for="fecha_fin_capacitacion" value="Fecha de Fin de Capacitación" />
-                    <x-text-input id="fecha_fin_capacitacion" class="block mt-1 w-full" type="date" name="fecha_fin_capacitacion" :value="old('fecha_fin_capacitacion')" required />
-                    <x-input-error :messages="$errors->get('fecha_fin_capacitacion')" class="mt-2" />
+                {{-- SECCIÓN: CARGO Y EXPERIENCIA --}}
+                <div class="bg-celeste bg-opacity-30 p-6 rounded-lg border border-azul-noche border-opacity-20">
+                    <h3 class="text-lg font-bold text-azul-noche mb-4 flex items-center">
+                        <i class="fas fa-briefcase mr-2 text-naranja"></i>
+                        Cargo y Requisitos
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <x-input-label for="tipo_cargo" value="Tipo de Cargo" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-user-tie absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <select id="tipo_cargo" name="tipo_cargo" required class="block w-full pl-10 pr-3 py-2 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all appearance-none bg-white">
+                                    <option value="" disabled {{ old('tipo_cargo') ? '' : 'selected' }}>Selecciona un Cargo</option>
+                                    @if($cargos->isEmpty())
+                                        <option value="" disabled>-- No se pudieron cargar los cargos --</option>
+                                    @endif
+                                    @foreach($cargos as $cargo)
+                                        <option value="{{ $cargo->id }}" {{ old('tipo_cargo') == $cargo->id ? 'selected' : '' }}>{{ $cargo->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-azul-noche pointer-events-none"></i>
+                            </div>
+                            <x-input-error :messages="$errors->get('tipo_cargo')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="experiencia" value="¿Requiere Experiencia Previa?" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-star absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <select id="experiencia" name="experiencia" required class="block w-full pl-10 pr-3 py-2 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all appearance-none bg-white">
+                                    <option value="" disabled selected>Selecciona una Opción</option>
+                                    <option value="si" {{ old('experiencia') == 'si' ? 'selected' : '' }}>Sí</option>
+                                    <option value="no" {{ old('experiencia') == 'no' ? 'selected' : '' }}>No</option>
+                                    <option value="indiferente" {{ old('experiencia') == 'indiferente' ? 'selected' : '' }}>Indiferente</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-azul-noche pointer-events-none"></i>
+                            </div>
+                            <x-input-error :messages="$errors->get('experiencia')" class="mt-2" />
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                {{-- SECCIÓN: TURNOS --}}
+                <div class="bg-celeste bg-opacity-30 p-6 rounded-lg border border-azul-noche border-opacity-20">
+                    <h3 class="text-lg font-bold text-azul-noche mb-4 flex items-center">
+                        <i class="fas fa-clock mr-2 text-naranja"></i>
+                        Turnos Disponibles (Opcional)
+                    </h3>
+                    <div>
+                        <x-input-label for="turnos" value="Selecciona uno o más horarios" class="text-azul-noche font-semibold mb-2" />
+                        <select id="turnos" name="turnos[]" multiple class="select2 block w-full border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all">
+                            @if($horarios->isEmpty())
+                                <option value="" disabled>-- Error de Conexión o Horarios Vacíos --</option>
+                            @endif
+                            @foreach ($horarios as $horario)
+                                <option value="{{ $horario->HorarioID }}" 
+                                        {{ in_array($horario->HorarioID, old('turnos', [])) ? 'selected' : '' }}>
+                                    {{ $horario->HorarioCompleto }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('turnos')" class="mt-2" />
+                        <p class="mt-2 text-sm text-azul-noche text-opacity-70 flex items-center">
+                            <i class="fas fa-info-circle mr-2 text-naranja"></i>
+                            Puedes seleccionar múltiples turnos.
+                        </p>
+                    </div>
+                </div>
+
+                {{-- SECCIÓN: FECHAS DE CAPACITACIÓN --}}
+                <div class="bg-celeste bg-opacity-30 p-6 rounded-lg border border-azul-noche border-opacity-20">
+                    <h3 class="text-lg font-bold text-azul-noche mb-4 flex items-center">
+                        <i class="fas fa-calendar-alt mr-2 text-naranja"></i>
+                        Rango de Capacitación
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <x-input-label for="fecha_inicio_capacitacion" value="Fecha de Inicio" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-calendar-check absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <x-text-input id="fecha_inicio_capacitacion" class="block w-full pl-10 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all" type="date" name="fecha_inicio_capacitacion" :value="old('fecha_inicio_capacitacion')" min="{{ now()->format('Y-m-d') }}" required />
+                            </div>
+                            <x-input-error :messages="$errors->get('fecha_inicio_capacitacion')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="fecha_fin_capacitacion" value="Fecha de Fin" class="text-azul-noche font-semibold mb-2" />
+                            <div class="relative">
+                                <i class="fas fa-calendar-times absolute left-3 top-1/2 transform -translate-y-1/2 text-naranja z-10"></i>
+                                <x-text-input id="fecha_fin_capacitacion" class="block w-full pl-10 border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 rounded-lg transition-all" type="date" name="fecha_fin_capacitacion" :value="old('fecha_fin_capacitacion')" required />
+                            </div>
+                            <x-input-error :messages="$errors->get('fecha_fin_capacitacion')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-start pt-4 border-t border-azul-noche border-opacity-20">
+                    <button type="submit" class="bg-gradient-to-r from-verde to-verde hover:from-verde hover:to-verde hover:bg-opacity-90 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        {{ __('Crear Convocatoria') }}
+                    </button>
+                </div>
+            </form>
         </div>
-        
-        <div class="flex items-center justify-start mt-6 pt-4">
-            <x-primary-button>
-                {{ __('Crear Convocatoria') }}
-            </x-primary-button>
-        </div>
-    </form>
+    </div>
 </div>
 
     @push('scripts')
@@ -216,10 +260,11 @@
                 allowClear: true 
             });
             
-            // Estilos adicionales de Tailwind para integración visual
+            // Estilos adicionales de Tailwind para integración visual con la paleta de colores
             $('.select2-container').css('width', '100%');
-            $('.select2-selection--multiple').addClass('!rounded-md !border-gray-300 !shadow-sm !py-1');
-            $('.select2-selection__choice').addClass('!bg-indigo-100 !border-indigo-400 !text-gray-700 !rounded-md');
+            $('.select2-selection--multiple').addClass('!rounded-lg !border-2 !border-azul-noche !border-opacity-30 !shadow-sm !py-2 !min-h-[42px]');
+            $('.select2-selection__choice').addClass('!bg-celeste !border-azul-noche !border-opacity-40 !text-azul-noche !rounded-md !font-medium');
+            $('.select2-selection__choice__remove').addClass('!text-azul-noche !hover:text-naranja');
 
         });
     </script>

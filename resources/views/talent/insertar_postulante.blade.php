@@ -44,8 +44,24 @@
         }
     @endphp
     <div class="w-full">
-        <!-- Sección: Búsqueda por DNI -->
+        <!-- Sección: Selector de Tipo de Documento -->
         <div class="mb-6 bg-gradient-to-r from-celeste to-celeste rounded-lg p-5 border-2 border-azul-noche border-opacity-20">
+            <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
+                <i class="fas fa-id-card mr-2 text-naranja"></i>
+                Tipo de Documento
+            </h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-azul-noche mb-2">Selecciona el tipo de documento <span class="text-naranja">*</span></label>
+                <select id="tipo-documento-select" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none">
+                    <option value="">Seleccionar tipo de documento</option>
+                    <option value="DNI">DNI</option>
+                    <option value="Carnet de Extranjería">Carnet de Extranjería</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Sección: Búsqueda por DNI -->
+        <div id="busqueda-dni-section" class="mb-6 bg-gradient-to-r from-celeste to-celeste rounded-lg p-5 border-2 border-azul-noche border-opacity-20" style="display: none;">
             <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
                 <i class="fas fa-search mr-2 text-naranja"></i>
                 Búsqueda por DNI
@@ -61,50 +77,88 @@
             </div>
         </div>
 
-        <!-- Formulario de Postulante -->
-        <form id="postulante-form">
-            @csrf
+        <!-- Sección: Formulario Manual para Carnet de Extranjería -->
+        <div id="formulario-extranjeria-section" class="mb-6 bg-gradient-to-r from-celeste to-celeste rounded-lg p-5 border-2 border-azul-noche border-opacity-20" style="display: none;">
+            <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
+                <i class="fas fa-passport mr-2 text-naranja"></i>
+                Datos del Extranjero
+            </h3>
+            <p class="text-sm text-azul-noche text-opacity-70 mb-4">Complete todos los datos manualmente</p>
+            <div class="flex gap-3 items-end">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-azul-noche mb-2">Número de Carnet de Extranjería</label>
+                    <input id="carnet-input" type="text" placeholder="Ingresa el número de carnet" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" />
+                </div>
+                <button id="btn-continuar-extranjeria" type="button" class="bg-naranja hover:bg-naranja hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center">
+                    <i class="fas fa-arrow-right mr-2"></i>Continuar
+                </button>
+            </div>
+        </div>
             
         <!-- Formulario de Postulante -->
         <form id="postulante-form">
             @csrf
             
-            <!-- Campos Autofill (Read-only) -->
+            <!-- Campos Autofill (Read-only para DNI, Editable para Carnet) -->
             <div class="mb-6 bg-gray-50 rounded-lg p-5 border border-gray-200">
                 <h3 class="text-lg font-semibold mb-4 text-azul-noche flex items-center">
                     <i class="fas fa-user-check mr-2 text-verde"></i>
-                    Información Obtenida
+                    Información Personal
                 </h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Nombres</label>
-                        <input name="nombres" id="nombres" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Nombres <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="nombres" id="nombres" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Paterno</label>
-                        <input name="ap_pat" id="ap_pat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Paterno <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="ap_pat" id="ap_pat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Materno</label>
-                        <input name="ap_mat" id="ap_mat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Apellido Materno <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="ap_mat" id="ap_mat" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Fecha de Nacimiento</label>
-                        <input name="fecha_nac" id="fecha_nac" type="date" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Número de Documento <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="dni" id="documento-numero" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Fecha de Nacimiento <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="fecha_nac" id="fecha_nac" type="date" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Sexo / Género <span class="text-naranja campo-requerido">*</span></label>
+                        <select name="sexo" id="sexo" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" disabled>
+                            <option value="">Seleccionar</option>
+                            <option value="1">Masculino</option>
+                            <option value="2">Femenino</option>
+                        </select>
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Dirección</label>
-                        <input name="direccion" id="direccion" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Dirección <span class="text-naranja campo-requerido">*</span></label>
+                        <input name="direccion" id="direccion" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" readonly />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Sexo</label>
-                        <input name="sexo" id="sexo" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed" readonly />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Estado Civil</label>
+                        <select name="est_civil" id="est_civil" class="border-2 border-azul-noche border-opacity-20 bg-white p-3 w-full rounded-lg text-azul-noche cursor-not-allowed campo-personal" disabled>
+                            <option value="">Seleccionar (opcional)</option>
+                            <option value="soltero">Soltero(a)</option>
+                            <option value="casado">Casado(a)</option>
+                            <option value="divorciado">Divorciado(a)</option>
+                            <option value="viudo">Viudo(a)</option>
+                            <option value="conviviente">Conviviente</option>
+                        </select>
+                    </div>
+                    <div id="nacionalidad-container" style="display: none;">
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Nacionalidad <span class="text-naranja">*</span></label>
+                        <input name="nacionalidad" id="nacionalidad" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" />
                     </div>
                 </div>
             </div>
 
-            <!-- Campo DNI Oculto para envío -->
-            <input type="hidden" name="dni" id="dni-field" />
+            <!-- Campos ocultos -->
+            <input type="hidden" name="tipo_documento" id="tipo-documento-field" />
+            <input type="hidden" id="sexo_numeric" />
             <!-- Campo convocatoria_id (rellenado desde el botón de la convocatoria) -->
             <input type="hidden" name="convocatoria_id" id="convocatoria-id" />
 
@@ -119,12 +173,16 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-azul-noche mb-2">Celular <span class="text-naranja">*</span></label>
-                        <input name="celular" id="celular" type="tel" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Número de Contacto <span class="text-naranja">*</span></label>
+                        <input name="celular" id="celular" type="tel" placeholder="Ej: 987654321" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-azul-noche mb-2">Número de WhatsApp <span class="text-naranja">*</span></label>
+                        <input name="whatsapp" id="whatsapp" type="tel" placeholder="Ej: 987654321" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-azul-noche mb-2">Correo Electrónico <span class="text-naranja">*</span></label>
-                        <input name="correo" id="correo" type="email" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
+                        <input name="correo" id="correo" type="email" placeholder="Ej: correo@ejemplo.com" class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-3 w-full rounded-lg transition-all outline-none" required />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-azul-noche mb-2">Departamento <span class="text-naranja">*</span></label>
@@ -241,8 +299,148 @@ document.addEventListener('DOMContentLoaded', function(){
     const tipoDiscapacidadContainer = document.getElementById('tipo_discapacidad_container');
     const additionalFields = document.getElementById('additional-fields');
     const buttonContainer = document.getElementById('button-container');
+    const tipoDocumentoSelect = document.getElementById('tipo-documento-select');
+    const busquedaDniSection = document.getElementById('busqueda-dni-section');
+    const formularioExtranjeriaSection = document.getElementById('formulario-extranjeria-section');
+    const nacionalidadContainer = document.getElementById('nacionalidad-container');
+    const camposPersonales = document.querySelectorAll('.campo-personal');
+    
     // Flag para evitar búsquedas concurrentes o dobles
     let isSearchingPostulante = false;
+    let isExtranjeria = false;
+
+    // Manejar cambio de tipo de documento
+    tipoDocumentoSelect.addEventListener('change', function(){
+        const tipoDoc = this.value;
+        document.getElementById('tipo-documento-field').value = tipoDoc;
+        
+        // Resetear formulario
+        resetFormulario();
+        
+        if(tipoDoc === 'DNI') {
+            busquedaDniSection.style.display = 'block';
+            formularioExtranjeriaSection.style.display = 'none';
+            nacionalidadContainer.style.display = 'none';
+            isExtranjeria = false;
+        } else if(tipoDoc === 'Carnet de Extranjería') {
+            busquedaDniSection.style.display = 'none';
+            formularioExtranjeriaSection.style.display = 'block';
+            nacionalidadContainer.style.display = 'block';
+            isExtranjeria = true;
+        } else {
+            busquedaDniSection.style.display = 'none';
+            formularioExtranjeriaSection.style.display = 'none';
+            nacionalidadContainer.style.display = 'none';
+            isExtranjeria = false;
+        }
+    });
+
+    // Botón continuar para Carnet de Extranjería
+    document.getElementById('btn-continuar-extranjeria').addEventListener('click', function(){
+        const carnet = document.getElementById('carnet-input').value;
+        
+        if(!carnet || carnet.trim() === '') {
+            Swal.fire('Error', 'Por favor ingresa el número de carnet', 'error');
+            return;
+        }
+
+        // Verificar si el carnet ya existe
+        Swal.fire({
+            title: 'Verificando...',
+            didOpen: () => { Swal.showLoading(); },
+            allowOutsideClick: false,
+        });
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        fetch('/postulantes/check-dni', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ dni: carnet })
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+            
+            if(data.success && data.exists) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Postulante ya Registrado',
+                    text: 'Este número de carnet ya está registrado en el sistema.',
+                });
+                return;
+            }
+
+            // Habilitar todos los campos para edición manual
+            habilitarCamposExtranjeria(carnet);
+            
+            Swal.fire('Continuar', 'Complete todos los datos manualmente', 'info');
+        })
+        .catch(err => {
+            Swal.close();
+            Swal.fire('Error', 'Error al verificar el carnet: ' + err.message, 'error');
+        });
+    });
+
+    function habilitarCamposExtranjeria(carnet) {
+        // Establecer el número de documento
+        document.getElementById('documento-numero').value = carnet;
+        
+        // Habilitar todos los campos personales para edición
+        camposPersonales.forEach(campo => {
+            campo.removeAttribute('readonly');
+            campo.removeAttribute('disabled');
+            campo.classList.remove('cursor-not-allowed', 'bg-white');
+            campo.classList.add('focus:border-naranja', 'focus:ring-2', 'focus:ring-naranja', 'focus:ring-opacity-30');
+            
+            // Para el select de sexo
+            if(campo.tagName === 'SELECT') {
+                campo.removeAttribute('disabled');
+            }
+        });
+        
+        // Limpiar valores previos
+        document.getElementById('nombres').value = '';
+        document.getElementById('ap_pat').value = '';
+        document.getElementById('ap_mat').value = '';
+        document.getElementById('fecha_nac').value = '';
+        document.getElementById('direccion').value = '';
+        document.getElementById('sexo').value = '';
+        document.getElementById('est_civil').value = '';
+        document.getElementById('nacionalidad').value = '';
+        
+        // Mostrar campos adicionales
+        additionalFields.style.display = 'block';
+        buttonContainer.style.display = 'flex';
+    }
+
+    function resetFormulario() {
+        document.getElementById('postulante-form').reset();
+        document.getElementById('dni-input').value = '';
+        document.getElementById('carnet-input').value = '';
+        document.getElementById('documento-numero').value = '';
+        additionalFields.style.display = 'none';
+        buttonContainer.style.display = 'none';
+        tipoDiscapacidadContainer.style.display = 'none';
+        
+        // Restaurar readonly en campos personales
+        camposPersonales.forEach(campo => {
+            campo.setAttribute('readonly', 'readonly');
+            if(campo.tagName === 'SELECT') {
+                campo.setAttribute('disabled', 'disabled');
+            }
+            campo.classList.add('cursor-not-allowed', 'bg-white');
+            campo.classList.remove('focus:border-naranja', 'focus:ring-2', 'focus:ring-naranja', 'focus:ring-opacity-30');
+        });
+        
+        if (departamentoSelect) departamentoSelect.selectedIndex = 0;
+        if (provinciaSelect) provinciaSelect.innerHTML = '<option value="">Seleccionar departamento primero</option>';
+        if (distritoSelect) distritoSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
+    }
 
     // Mostrar campo "Tipo Discapacidad" solo si se selecciona "Sí"
     discapacidadSelect.addEventListener('change', function(){
@@ -284,7 +482,8 @@ document.addEventListener('DOMContentLoaded', function(){
         distritoSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
         if (!depId) return;
         
-        const provincias = provinciasData.filter(p => p.department_id === depId);
+        const depKey = String(depId);
+        const provincias = provinciasData.filter(p => String(p.department_id) === depKey);
         provincias.forEach((p) => {
             const opt = document.createElement('option');
             opt.value = p.id;
@@ -297,7 +496,8 @@ document.addEventListener('DOMContentLoaded', function(){
         distritoSelect.innerHTML = '<option value="">Seleccionar</option>';
         if (!provId) return;
         
-        const distritos = distritosData.filter(d => d.province_id === provId);
+        const provKey = String(provId);
+        const distritos = distritosData.filter(d => String(d.province_id) === provKey);
         distritos.forEach(d => {
             const opt = document.createElement('option');
             opt.value = d.id;
@@ -312,12 +512,26 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     departamentoSelect.addEventListener('change', function(){
-        populateProvincias(parseInt(this.value));
+        populateProvincias(this.value);
     });
 
     provinciaSelect.addEventListener('change', function(){
-        populateDistritos(parseInt(this.value));
+        populateDistritos(this.value);
     });
+
+    // Helpers para obtener nombres de ubigeo
+    function findDepartamentoName(id) {
+        const dep = departamentosData.find(d => String(d.id) === String(id));
+        return dep ? dep.name : null;
+    }
+    function findProvinciaName(id) {
+        const prov = provinciasData.find(p => String(p.id) === String(id));
+        return prov ? prov.name : null;
+    }
+    function findDistritoName(id) {
+        const dist = distritosData.find(d => String(d.id) === String(id));
+        return dist ? dist.name : null;
+    }
 
     // Buscar por DNI
     // Usamos `onclick` en vez de addEventListener para evitar handlers duplicados
@@ -408,31 +622,48 @@ document.addEventListener('DOMContentLoaded', function(){
             if(consultaData.success && consultaData.data) {
                 const d = consultaData.data;
                 
-                // Mapeo de sexo
-                let sexoLabel = d.sexo;
-                if(d.sexo === '1' || d.sexo === 1) sexoLabel = 'Masculino';
-                else if(d.sexo === '2' || d.sexo === 2) sexoLabel = 'Femenino';
-                
                 // Poblar campos autofill
                 document.getElementById('nombres').value = d.nombres || '';
                 document.getElementById('ap_pat').value = d.ap_pat || '';
                 document.getElementById('ap_mat').value = d.ap_mat || '';
                 document.getElementById('fecha_nac').value = d.fecha_nac || '';
                 document.getElementById('direccion').value = d.direccion || '';
-                document.getElementById('sexo').value = sexoLabel || '';
+                document.getElementById('documento-numero').value = d.dni || dni;
                 
-                // Guardar sexo numérico
-                let sexoNumericInput = document.getElementById('sexo_numeric');
-                if (!sexoNumericInput) {
-                    sexoNumericInput = document.createElement('input');
-                    sexoNumericInput.type = 'hidden';
-                    sexoNumericInput.name = 'sexo_numeric';
-                    sexoNumericInput.id = 'sexo_numeric';
-                    document.getElementById('postulante-form').appendChild(sexoNumericInput);
+                // Mapeo de sexo para el select
+                const sexoSelect = document.getElementById('sexo');
+                if(d.sexo === '1' || d.sexo === 1) {
+                    sexoSelect.value = '1';
+                } else if(d.sexo === '2' || d.sexo === 2) {
+                    sexoSelect.value = '2';
                 }
-                sexoNumericInput.value = d.sexo || '';
                 
-                document.getElementById('dni-field').value = d.dni || dni;
+                // Guardar sexo numérico en campo oculto
+                document.getElementById('sexo_numeric').value = d.sexo || '';
+                
+                // Cargar estado civil si viene de la API
+                if(d.est_civil) {
+                    const estCivilSelect = document.getElementById('est_civil');
+                    // Mapear valores comunes de la API a los valores del select
+                    const estCivilLower = String(d.est_civil).toLowerCase().trim();
+                    let estCivilValue = '';
+                    
+                    if(estCivilLower.includes('soltero') || estCivilLower === 's') {
+                        estCivilValue = 'soltero';
+                    } else if(estCivilLower.includes('casado') || estCivilLower === 'c') {
+                        estCivilValue = 'casado';
+                    } else if(estCivilLower.includes('divorciado') || estCivilLower === 'd') {
+                        estCivilValue = 'divorciado';
+                    } else if(estCivilLower.includes('viudo') || estCivilLower === 'v') {
+                        estCivilValue = 'viudo';
+                    } else if(estCivilLower.includes('conviviente') || estCivilLower.includes('union')) {
+                        estCivilValue = 'conviviente';
+                    }
+                    
+                    if(estCivilValue && estCivilSelect) {
+                        estCivilSelect.value = estCivilValue;
+                    }
+                }
 
                 // Mostrar formulario
                 additionalFields.style.display = 'block';
@@ -481,23 +712,53 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Limpiar formulario
     document.getElementById('btn-limpiar').addEventListener('click', function(){
-        document.getElementById('postulante-form').reset();
-        document.getElementById('dni-input').value = '';
-        document.getElementById('dni-field').value = '';
-        additionalFields.style.display = 'none';
-        buttonContainer.style.display = 'none';
-        tipoDiscapacidadContainer.style.display = 'none';
-        if (departamentoSelect) departamentoSelect.selectedIndex = 0;
-        if (provinciaSelect) provinciaSelect.innerHTML = '<option value="">Seleccionar departamento primero</option>';
-        if (distritoSelect) distritoSelect.innerHTML = '<option value="">Seleccionar provincia primero</option>';
+        resetFormulario();
+        tipoDocumentoSelect.value = '';
+        document.getElementById('tipo-documento-field').value = '';
     });
 
     // Guardar postulante
     document.getElementById('btn-guardar').addEventListener('click', function(){
         const form = document.getElementById('postulante-form');
         
-        if(!form.checkValidity()) {
-            Swal.fire('Error', 'Por favor completa todos los campos obligatorios', 'error');
+        // Validación manual de campos obligatorios
+        const camposObligatorios = [
+            { id: 'nombres', label: 'Nombres' },
+            { id: 'ap_pat', label: 'Apellido Paterno' },
+            { id: 'ap_mat', label: 'Apellido Materno' },
+            { id: 'documento-numero', label: 'Número de Documento' },
+            { id: 'fecha_nac', label: 'Fecha de Nacimiento' },
+            { id: 'sexo', label: 'Sexo' },
+            { id: 'direccion', label: 'Dirección' },
+            // est_civil es opcional (nullable)
+            { id: 'celular', label: 'Número de Contacto' },
+            { id: 'whatsapp', label: 'Número de WhatsApp' },
+            { id: 'correo', label: 'Correo Electrónico' },
+            { id: 'departamento', label: 'Departamento' },
+            { id: 'provincia', label: 'Provincia' },
+            { id: 'distrito', label: 'Distrito' },
+            { id: 'experiencia_callcenter', label: 'Experiencia en Call Center' },
+            { id: 'discapacidad', label: 'Discapacidad' },
+            { id: 'tipo_contrato', label: 'Tipo de Contrato' },
+            { id: 'modalidad_trabajo', label: 'Modalidad de Trabajo' },
+            { id: 'tipo_gestion', label: 'Tipo de Gestión' }
+        ];
+
+        // Si es extranjería, validar nacionalidad
+        if(isExtranjeria) {
+            camposObligatorios.push({ id: 'nacionalidad', label: 'Nacionalidad' });
+        }
+
+        let camposFaltantes = [];
+        camposObligatorios.forEach(campo => {
+            const elemento = document.getElementById(campo.id);
+            if(elemento && (!elemento.value || elemento.value.trim() === '')) {
+                camposFaltantes.push(campo.label);
+            }
+        });
+
+        if(camposFaltantes.length > 0) {
+            Swal.fire('Error', 'Por favor completa todos los campos obligatorios:\n' + camposFaltantes.join(', '), 'error');
             return;
         }
 
@@ -505,14 +766,29 @@ document.addEventListener('DOMContentLoaded', function(){
         const payload = {};
         formData.forEach((v,k)=> payload[k]=v);
 
+        // Convertir IDs de ubigeo a nombres antes de enviar
+        if (payload.departamento) {
+            const depName = findDepartamentoName(payload.departamento);
+            if (depName) payload.departamento = depName;
+        }
+        if (payload.provincia) {
+            const provName = findProvinciaName(payload.provincia);
+            if (provName) payload.provincia = provName;
+        }
+        if (payload.distrito) {
+            const distName = findDistritoName(payload.distrito);
+            if (distName) payload.distrito = distName;
+        }
+
         // Asegurar que el formulario incluya la convocatoria asociada (si fue establecida desde la lista)
         const convInput = document.getElementById('convocatoria-id');
         if (convInput && convInput.value) {
             payload.convocatoria_id = convInput.value;
         }
         
-        // Usar sexo numérico
-        if(payload.sexo_numeric) {
+        // Para DNI, usar sexo del API (numérico)
+        // Para extranjería, usar el valor del select
+        if(!isExtranjeria && payload.sexo_numeric) {
             payload.sexo = payload.sexo_numeric;
             delete payload.sexo_numeric;
         }
@@ -535,13 +811,11 @@ document.addEventListener('DOMContentLoaded', function(){
         }).then(r=>r.json()).then(res=>{
             if(res.success){ 
                 Swal.fire('Éxito','Postulante guardado correctamente','success').then(() => {
-                    // Reset del formulario local
-                    document.getElementById('postulante-form').reset();
-                    document.getElementById('dni-input').value = '';
-                    document.getElementById('dni-field').value = '';
-                    additionalFields.style.display = 'none';
-                    buttonContainer.style.display = 'none';
-                    tipoDiscapacidadContainer.style.display = 'none';
+                    // Reset completo del formulario
+                    resetFormulario();
+                    tipoDocumentoSelect.value = '';
+                    document.getElementById('tipo-documento-field').value = '';
+                    
                     // Emitir evento global para que el modal (o la lista) recargue postulantes
                     try {
                         const createdConvId = payload.convocatoria_id || document.getElementById('convocatoria-id')?.value;

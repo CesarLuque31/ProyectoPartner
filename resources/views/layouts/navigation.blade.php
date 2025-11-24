@@ -8,8 +8,8 @@
                     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
                         <div class="bg-azul-noche bg-opacity-10 p-2 rounded-xl group-hover:bg-opacity-20 transition-all duration-300">
                             <svg class="h-7 w-7 text-azul-noche" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6m-6 0h-2a1 1 0 00-1 1v2m8-2v2a1 1 0 001 1h2a1 1 0 001-1v-2" />
-                            </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6m-6 0h-2a1 1 0 00-1 1v2m8-2v2a1 1 0 001 1h2a1 1 0 001-1v-2" />
+                        </svg>
                         </div>
                         <span class="text-xl font-bold text-azul-noche hidden md:block">Partner</span>
                     </a>

@@ -4,7 +4,7 @@
 
             {{-- CONTENEDOR PRINCIPAL: Aplica a TODOS los usuarios --}}
             <div class="bg-white shadow-xl sm:rounded-lg border-2 border-azul-noche border-opacity-10" x-data="{ currentTab: 'profile' }">
-                <div class="p-6 lg:p-8 bg-white border-b border-celeste flex">
+                <div class="bg-white border-b border-celeste flex" :class="currentTab === 'talent_convocatorias_list' ? 'p-6 lg:p-8 pb-0 mb-0' : 'p-6 lg:p-8'">
 
                     {{-- 1. BARRA DE NAVEGACIÓN LATERAL (Menú) --}}
                     <div class="w-1/5 pr-6 border-r border-gray-200">
@@ -76,7 +76,7 @@
                     </div>
 
                     {{-- 2. ÁREA DE CONTENIDO DINÁMICO --}}
-                    <div class="w-4/5 pl-6">
+                    <div class="w-4/5 pl-6" x-show="currentTab !== 'talent_convocatorias_list'">
                         @php
                             // Pre-cargar datos de convocatorias para las vistas que los necesiten
                             $TalentoControllerList = app(\App\Http\Controllers\TalentoController::class);
@@ -88,59 +88,84 @@
                             $reclutadores_disponibles = $data['reclutadores_disponibles'] ?? [];
                         @endphp
                         {{-- VISTA 1 (POR DEFECTO): PERFIL (Para todos) --}}
-                        <div x-show="currentTab === 'profile'" class="space-y-8">
+                        <div x-show="currentTab === 'profile'" class="space-y-6">
                             
-                            {{-- BLOQUE DE INFORMACIÓN DE SÓLO LECTURA --}}
-                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Datos Personales</h2>
-                            
-                            {{-- TARJETA DE PERFIL --}}
-                            <div class="bg-white p-8 shadow-xl rounded-lg text-center border border-gray-200">
-                                <div class="flex flex-col items-center">
-                                    {{-- FOTO --}}
-                                    <div class="mb-4">
-                                        @if(Auth::user()->foto)
-                                            <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Foto de Perfil" 
-                                                 class="w-24 h-24 rounded-full object-cover border-4 border-naranja shadow-md mx-auto">
-                                        @else
-                                            <div class="w-24 h-24 rounded-full bg-celeste flex items-center justify-center text-3xl font-extrabold text-azul-noche mx-auto border-2 border-naranja shadow-md">
-                                                {{ substr(Auth::user()->name, 0, 1) }}
+                            {{-- TARJETA DE INFORMACIÓN PERSONAL --}}
+                            <div class="bg-white shadow-xl rounded-xl border-2 border-azul-noche border-opacity-20 overflow-hidden">
+                                <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-6 py-4">
+                                    <h3 class="text-xl font-bold text-white flex items-center">
+                                        <i class="fas fa-id-card mr-2"></i>
+                                        Datos Personales
+                                    </h3>
+                                </div>
+                                <div class="p-6">
+                                    <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                                        {{-- FOTO --}}
+                                        <div class="flex-shrink-0">
+                                            @if(Auth::user()->foto)
+                                                <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Foto de Perfil" 
+                                                     class="w-32 h-32 rounded-full object-cover border-4 border-naranja shadow-lg">
+                                            @else
+                                                <div class="w-32 h-32 rounded-full bg-celeste flex items-center justify-center text-4xl font-extrabold text-azul-noche border-4 border-naranja shadow-lg">
+                                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        {{-- DATOS --}}
+                                        <div class="flex-1 text-center md:text-left">
+                                            <h4 class="text-2xl font-bold text-azul-noche mb-3">{{ Auth::user()->name }}</h4>
+                                            <div class="space-y-2">
+                                                <p class="text-azul-noche flex items-center justify-center md:justify-start">
+                                                    <i class="fas fa-envelope mr-2 text-naranja"></i>
+                                                    <span>{{ Auth::user()->email }}</span>
+                                                </p>
+                                                @if(Auth::user()->dni)
+                                                <p class="text-azul-noche flex items-center justify-center md:justify-start">
+                                                    <i class="fas fa-id-card mr-2 text-naranja"></i>
+                                                    <span>DNI: <strong>{{ Auth::user()->dni }}</strong></span>
+                                                </p>
+                                                @endif
+                                                <div class="flex items-center justify-center md:justify-start">
+                                                    <i class="fas fa-user-tag mr-2 text-naranja"></i>
+                                                    <span class="px-4 py-1 text-sm font-bold rounded-full bg-verde text-white shadow-md">
+                                                        {{ ucwords(Auth::user()->rol) }}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        @endif
-                                    </div>
-
-                                    {{-- DATOS --}}
-                                    <div class="space-y-2">
-                                        <p class="text-3xl font-extrabold text-azul-noche">{{ Auth::user()->name }}</p>
-                                        <p class="text-lg text-azul-noche flex items-center justify-center">
-                                            <i class="fas fa-id-card mr-2 text-naranja"></i>
-                                            DNI: <span class="ml-1 font-semibold">{{ Auth::user()->dni ?? 'N/A' }}</span>
-                                        </p>
-                                        <div class="flex items-center justify-center">
-                                            <i class="fas fa-user-tag mr-2 text-naranja"></i>
-                                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-verde text-white shadow-md">
-                                                {{ ucwords(Auth::user()->rol) }}
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <hr class="border-gray-200">
 
-                            {{-- BLOQUE DE EDICIÓN DE CREDENCIALES --}}
-                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Edición de Credenciales</h2>
-
-                            {{-- 2. Edición de Correo --}}
-                            <div class="bg-white p-6 shadow-md rounded-lg max-w-xl mx-auto border border-gray-100">
-                                @include('profile.partials.update-profile-information-form', ['user' => Auth::user()])
+                            {{-- TARJETA DE INFORMACIÓN DE CONTACTO --}}
+                            <div class="bg-white shadow-xl rounded-xl border-2 border-azul-noche border-opacity-20 overflow-hidden">
+                                <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-6 py-4">
+                                    <h3 class="text-xl font-bold text-white flex items-center">
+                                        <i class="fas fa-envelope mr-2"></i>
+                                        Información de Contacto
+                                    </h3>
+                                </div>
+                                <div class="p-6">
+                                    <div class="max-w-2xl">
+                                        @include('profile.partials.update-profile-information-form', ['user' => Auth::user()])
+                                    </div>
+                                </div>
                             </div>
 
-                            {{-- 3. Edición de Contraseña --}}
-                            <div class="bg-white p-6 shadow-md rounded-lg max-w-xl mx-auto border border-gray-100">
-                                @include('profile.partials.update-password-form')
+                            {{-- TARJETA DE SEGURIDAD --}}
+                            <div class="bg-white shadow-xl rounded-xl border-2 border-azul-noche border-opacity-20 overflow-hidden">
+                                <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-6 py-4">
+                                    <h3 class="text-xl font-bold text-white flex items-center">
+                                        <i class="fas fa-shield-alt mr-2"></i>
+                                        Seguridad y Contraseña
+                                    </h3>
+                                </div>
+                                <div class="p-6">
+                                    <div class="max-w-2xl">
+                                        @include('profile.partials.update-password-form')
+                                    </div>
+                                </div>
                             </div>
-
-                            <hr class="border-gray-200">
                         </div>
 
                         {{-- VISTAS ESPECÍFICAS DEL ROL --}}
@@ -163,7 +188,7 @@
                                     @include('talent.convocatorias')
                                 </div>
 
-                                <div x-show="currentTab === 'talent_convocatorias_list'">
+                                <div x-show="currentTab === 'talent_convocatorias_list'" class="w-4/5">
                                     @include('talent.convocatorias_list')
                                 </div>
                                 @break
