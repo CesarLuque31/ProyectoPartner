@@ -7,6 +7,7 @@
         <meta name="route-consulta" content="{{ route('postulantes.consulta') }}">
         <meta name="route-store" content="{{ route('postulantes.store') }}">
 
+        <link rel="icon" href="{{ asset('storage/profile_photos/partnerlogo.jpg') }}" type="image/jpeg">
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <link rel="icon" href="{{ asset('storage/profile_photos/partnerlogo.jpg') }}" type="image/jpeg">
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->

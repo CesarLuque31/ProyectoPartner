@@ -39,8 +39,7 @@ class ConvocatoriaDetalle extends Model
 
     protected $casts = [
         'dias_laborables' => 'array',
-        'hora_inicio' => 'datetime:H:i',
-        'hora_fin' => 'datetime:H:i',
+        // hora_inicio y hora_fin son columnas TIME, no necesitan cast datetime
         'remuneracion' => 'decimal:2',
         'variable' => 'decimal:2',
         'movilidad' => 'decimal:2',

@@ -30,7 +30,7 @@
                 Completa los detalles de la nueva campaña de reclutamiento.
             </p>
 
-            <form method="POST" action="{{ route('convocatorias.store') }}" class="space-y-6">
+            <form id="form-crear-convocatoria" method="POST" action="{{ route('convocatorias.store') }}" class="space-y-6">
                 @csrf
 
                 {{-- SECCIÓN: INFORMACIÓN BÁSICA --}}
@@ -266,6 +266,65 @@
             $('.select2-selection__choice').addClass('!bg-celeste !border-azul-noche !border-opacity-40 !text-azul-noche !rounded-md !font-medium');
             $('.select2-selection__choice__remove').addClass('!text-azul-noche !hover:text-naranja');
 
+            // AJAX para crear convocatoria sin recargar
+            const formCrear = document.getElementById('form-crear-convocatoria');
+            if(formCrear) {
+                formCrear.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = formCrear.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
+
+                    const formData = new FormData(formCrear);
+
+                    try {
+                        const response = await fetch(formCrear.action, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Convocatoria Creada!',
+                                text: data.message,
+                                showConfirmButton: false,
+                                timer: 3000,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                            
+                            // Resetear formulario
+                            formCrear.reset();
+                            $('#turnos').val(null).trigger('change'); // Reset select2
+                            
+                            // Disparar evento para actualizar la lista
+                            window.dispatchEvent(new CustomEvent('convocatoria:created'));
+                            
+                        } else {
+                            throw new Error(data.message || 'Error al crear la convocatoria');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message || 'Ocurrió un error al procesar la solicitud.'
+                        });
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                });
+            }
         });
     </script>
     @endpush

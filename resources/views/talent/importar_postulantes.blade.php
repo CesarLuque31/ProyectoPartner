@@ -9,7 +9,7 @@
             <label class="block text-xs font-medium text-azul-noche mb-1">Selecciona el tipo de documento <span
                     class="text-naranja">*</span></label>
             <select id="tipo-documento-importar"
-                class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-2 w-full rounded-lg transition-all outline-none text-sm">
+                class="border-2 border-azul-noche border-opacity-30 focus:border-naranja focus:ring-2 focus:ring-naranja focus:ring-opacity-30 p-2 w-full md:w-1/2 rounded-lg transition-all outline-none text-sm">
                 <option value="">Seleccionar tipo de documento</option>
                 <option value="DNI">DNI</option>
                 <option value="Carnet de Extranjería">Carnet de Extranjería</option>

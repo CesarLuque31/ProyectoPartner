@@ -187,7 +187,7 @@
         <div id="modal-insertar-postulante"
             class="fixed inset-0 z-50 flex items-center justify-center bg-azul-noche bg-opacity-70 backdrop-blur-sm hidden">
             <div
-                class="bg-white rounded-xl shadow-2xl w-full max-w-5xl relative h-[90vh] overflow-hidden flex flex-col border-2 border-azul-noche">
+                class="bg-white rounded-xl shadow-2xl w-full max-w-5xl relative max-h-[90vh] overflow-hidden flex flex-col border-2 border-azul-noche">
                 <!-- Header del Modal -->
                 <div
                     class="bg-gradient-to-r from-azul-noche to-azul-noche px-6 py-4 flex items-center justify-between shrink-0">
@@ -481,7 +481,7 @@
                             </div>
 
                             <div class="mt-6 pt-6 border-t border-celeste flex gap-3">
-                                <button type="button" id="btn-guardar-detalles"
+                                <button type="button" id="btn-guardar-detalles-v2"
                                     class="flex-1 bg-gradient-to-r from-verde to-verde hover:from-verde hover:to-verde hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center">
                                     <i class="fas fa-save mr-2"></i>Guardar Detalles
                                 </button>
@@ -617,7 +617,7 @@
                                                                                                                                 <button type="button" class="detalles-conv-btn flex-1 bg-azul-noche hover:bg-azul-noche hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}">
                                                                                                                                     <i class="fas fa-info-circle mr-1.5"></i> Detalles
                                                                                                                                 </button>
-                                                                                                                                <button type="button" class="swal-assign-btn flex-1 bg-celeste hover:bg-celeste hover:bg-opacity-80 text-azul-noche px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
+                                                                                                                                <button type="button" class="swal-assign-btn flex-1 bg-celeste hover:bg-celeste hover:bg-opacity-80 text-azul-noche px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}" data-reclutadores='${JSON.stringify(c.reclutadores_asignados || [])}'>
                                                                                                                                     <i class="fas fa-users mr-1.5"></i> Asignar
                                                                                                                                 </button>
                                                                                                                                 <button type="button" class="insertar-postulante-btn flex-1 bg-verde hover:bg-verde hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
@@ -691,6 +691,11 @@
                         if (btnAplicar) btnAplicar.addEventListener('click', aplicarFiltros);
                         if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
 
+                        // Escuchar evento de creación de convocatoria para refrescar la lista sin recargar
+                        window.addEventListener('convocatoria:created', function() {
+                            aplicarFiltros();
+                        });
+
                         // Las convocatorias solo se cargan cuando se aplican los filtros
 
                         // Aquí puedes agregar los listeners para los botones de eliminar y asignar reclutadores después de renderizar
@@ -763,22 +768,17 @@
                                 const convID = assignBtn.getAttribute('data-conv-id');
                                 const convName = assignBtn.getAttribute('data-conv-name');
                                 const reclutadoresDisp = {!! json_encode($reclutadores_disponibles) !!};
-                                let currentReclutadoresRaw = {!! json_encode($convocatorias->pluck('reclutadores_asignados', 'id')) !!}[convID] || [];
-
-                                // Normalizar a array de strings/ints
+                                
+                                // Obtener reclutadores asignados desde el atributo data
+                                let currentReclutadoresRaw = assignBtn.getAttribute('data-reclutadores');
                                 let currentReclutadores = [];
+                                
                                 try {
-                                    if (typeof currentReclutadoresRaw === 'string') {
-                                        // puede ser JSON string
-                                        const parsed = JSON.parse(currentReclutadoresRaw);
-                                        if (Array.isArray(parsed)) currentReclutadores = parsed;
-                                    } else if (Array.isArray(currentReclutadoresRaw)) {
-                                        currentReclutadores = currentReclutadoresRaw;
-                                    } else if (currentReclutadoresRaw && typeof currentReclutadoresRaw === 'object') {
-                                        // en algunos casos puede llegar como objeto indexado
-                                        currentReclutadores = Object.values(currentReclutadoresRaw);
+                                    if (currentReclutadoresRaw) {
+                                        currentReclutadores = JSON.parse(currentReclutadoresRaw);
                                     }
                                 } catch (err) {
+                                    console.error('Error parsing reclutadores:', err);
                                     currentReclutadores = [];
                                 }
 
@@ -840,7 +840,10 @@
                                             .then(response => response.json())
                                             .then(data => {
                                                 Swal.fire('Éxito', 'Reclutadores asignados correctamente', 'success')
-                                                    .then(() => { location.reload(); });
+                                                    .then(() => { 
+                                                        // Actualizar la lista manteniendo filtros en lugar de recargar
+                                                        aplicarFiltros(); 
+                                                    });
                                             })
                                             .catch(error => {
                                                 Swal.fire('Error', 'No se pudo asignar reclutadores', 'error');
@@ -1416,22 +1419,31 @@
                             }
                         }
 
-                        // Guardar detalles
-                        document.getElementById('btn-guardar-detalles').addEventListener('click', async function () {
+                        
+                        const btnGuardar = document.getElementById('btn-guardar-detalles-v2');
+                        if(btnGuardar) {
+                            btnGuardar.addEventListener('click', async function () {
                             const form = document.getElementById('form-detalles-convocatoria');
                             const formData = new FormData(form);
 
-                            // Agregar días laborables
-                            formData.append('dias_laborables', JSON.stringify(diasSeleccionados));
+                            // Agregar días laborables (usar set para sobrescribir el input hidden vacío)
+                            formData.set('dias_laborables', JSON.stringify(diasSeleccionados));
 
                             const payload = {};
                             formData.forEach((value, key) => {
                                 if (key === 'dias_laborables') {
-                                    payload[key] = JSON.parse(value);
+                                    try {
+                                        payload[key] = value ? JSON.parse(value) : [];
+                                    } catch (e) {
+                                        console.warn('Error parsing dias_laborables:', e);
+                                        payload[key] = [];
+                                    }
                                 } else {
                                     payload[key] = value || null;
                                 }
                             });
+
+                            console.log('Enviando datos al servidor:', payload);
 
                             Swal.fire({
                                 title: 'Guardando...',
@@ -1449,18 +1461,40 @@
                                     body: JSON.stringify(payload)
                                 });
 
-                                const data = await response.json();
+                                console.log('Respuesta del servidor - Status:', response.status);
 
-                                if (data.success) {
-                                    Swal.fire('Éxito', 'Detalles guardados correctamente', 'success');
+                                // Verificar si la respuesta es JSON válido
+                                const contentType = response.headers.get('content-type');
+                                if (!contentType || !contentType.includes('application/json')) {
+                                    console.error('Respuesta no es JSON:', contentType);
+                                    const text = await response.text();
+                                    console.error('Contenido de la respuesta:', text);
+                                    throw new Error('El servidor no devolvió una respuesta JSON válida');
+                                }
+
+                                const data = await response.json();
+                                console.log('Datos recibidos:', data);
+
+                                if (response.ok && data.success) {
+                                    Swal.fire('Éxito', data.message || 'Detalles guardados correctamente', 'success');
+                                } else if (response.status === 422) {
+                                    // Error de validación
+                                    let errorMsg = 'Error de validación:\n';
+                                    if (data.errors) {
+                                        for (const [field, messages] of Object.entries(data.errors)) {
+                                            errorMsg += `\n${field}: ${messages.join(', ')}`;
+                                        }
+                                    }
+                                    Swal.fire('Error de Validación', errorMsg, 'error');
                                 } else {
-                                    Swal.fire('Error', data.error || 'No se pudieron guardar los detalles', 'error');
+                                    Swal.fire('Error', data.error || data.message || 'No se pudieron guardar los detalles', 'error');
                                 }
                             } catch (error) {
-                                console.error('Error:', error);
-                                Swal.fire('Error', 'Error al guardar los detalles', 'error');
+                                console.error('Error completo:', error);
+                                Swal.fire('Error', 'Error al guardar los detalles: ' + error.message, 'error');
                             }
                         });
+                        }
 
                         // Botones cerrar
                         document.getElementById('cerrar-modal-detalles').addEventListener('click', closeDetallesModal);

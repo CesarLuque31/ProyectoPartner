@@ -97,7 +97,7 @@ class TalentoController extends Controller
 
             return [
                 'id' => $c->id,
-                'created_at' => optional($c->created_at)->format('d/m/Y H:i'),
+                'created_at' => optional($c->created_at)->format('d/m/Y'),
                 'estado' => $c->estado,
                 'campania_nombre' => $campanias[$c->campana] ?? $c->campana,
                 'cargo_nombre' => $cargos[$c->tipo_cargo] ?? $c->tipo_cargo,
@@ -106,8 +106,9 @@ class TalentoController extends Controller
                 'fecha_inicio_capacitacion' => optional($c->fecha_inicio_capacitacion)->format('d/m/Y') ?? 'N/A',
                 'fecha_fin_capacitacion' => optional($c->fecha_fin_capacitacion)->format('d/m/Y') ?? 'N/A',
                 'turnos_labels' => $turnos_labels,
-                'reclutadores_asignados_labels' => $reclutadores_asignados_labels,
-                'csrf_token' => csrf_token(),
+            'reclutadores_asignados' => $recIDs, // IDs para el modal
+            'reclutadores_asignados_labels' => $reclutadores_asignados_labels,
+            'csrf_token' => csrf_token(),
             ];
         });
 
@@ -122,7 +123,7 @@ class TalentoController extends Controller
     /**
      * Maneja la creación de una nueva convocatoria.
      */
-    public function storeConvocatoria(ConvocatoriaStoreRequest $request): RedirectResponse
+    public function storeConvocatoria(ConvocatoriaStoreRequest $request)
     {
         $validated = $request->validated();
 
@@ -146,10 +147,19 @@ class TalentoController extends Controller
         try {
             Convocatoria::create($data);
 
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Convocatoria creada exitosamente.']);
+            }
+
             return redirect()->route('dashboard')->with('status', 'Convocatoria creada exitosamente.');
 
         } catch (\Exception $e) {
             \Log::error('Error al guardar convocatoria: ' . $e->getMessage());
+            
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Error del servidor: ' . $e->getMessage()], 500);
+            }
+
             return back()->withInput()->with('error', 'No se pudo crear la convocatoria debido a un error del servidor. Revise los logs.');
         }
     }
@@ -450,6 +460,11 @@ class TalentoController extends Controller
     public function saveDetallesConvocatoria(Request $request, $id): JsonResponse
     {
         try {
+            Log::info('Guardando detalles de convocatoria', [
+                'convocatoria_id' => $id,
+                'data' => $request->all()
+            ]);
+
             $validated = $request->validate([
                 'razon_social_interna' => 'nullable|string|max:255',
                 'jefe_inmediato' => 'nullable|string|max:255',
@@ -483,21 +498,38 @@ class TalentoController extends Controller
                 $validated
             );
 
+            Log::info('Detalles guardados exitosamente', ['detalle_id' => $detalle->id]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Detalles guardados exitosamente',
                 'detalles' => $detalle
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Error de validación al guardar detalles', [
+                'convocatoria_id' => $id,
+                'errors' => $e->errors()
+            ]);
             return response()->json([
                 'success' => false,
+                'message' => 'Error de validación',
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
-            \Log::error('Error al guardar detalles: ' . $e->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Convocatoria no encontrada', ['convocatoria_id' => $id]);
             return response()->json([
                 'success' => false,
-                'error' => 'No se pudieron guardar los detalles'
+                'error' => 'Convocatoria no encontrada'
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error('Error al guardar detalles de convocatoria', [
+                'convocatoria_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'No se pudieron guardar los detalles: ' . $e->getMessage()
             ], 500);
         }
     }
