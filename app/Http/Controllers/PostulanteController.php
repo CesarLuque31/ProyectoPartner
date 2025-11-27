@@ -80,15 +80,31 @@ class PostulanteController extends Controller
 				->orderBy('created_at', 'desc')
 				->get();
 
-			// Verificar si algún postulante ya fue capacitado
-			$yaCapacitados = false;
-			if ($postulantes->isNotEmpty()) {
+			// Verificar si TODOS los postulantes ya fueron capacitados EN ESTA CONVOCATORIA
+		$yaCapacitados = false;
+		if ($postulantes->isNotEmpty()) {
+			// Obtener la campaña y fecha de inicio de esta convocatoria
+			$convocatoria = DB::table('raz_convocatorias')
+				->where('id', $convocatoriaId)
+				->first();
+			
+			if ($convocatoria) {
 				$dnis = $postulantes->pluck('dni')->toArray();
-				$yaCapacitados = DB::table('Postulantes_En_Formacion')
+				$fechaInicio = null;
+				if ($convocatoria->fecha_inicio_capacitacion) {
+					$fechaInicio = date('Y-m-d', strtotime($convocatoria->fecha_inicio_capacitacion));
+				}
+				
+				// Contar cuántos postulantes ya están capacitados con esta campaña Y fecha de inicio
+				$capacitadosCount = DB::table('Postulantes_En_Formacion')
 					->whereIn('DNI', $dnis)
-					->exists();
+					->where('CampañaID', $convocatoria->campana)
+					->where('FechaInicio', $fechaInicio)
+					->count();
+				// Solo marcar como "ya capacitados" si TODOS están capacitados en esta campaña y período
+				$yaCapacitados = ($capacitadosCount === count($dnis));
 			}
-
+		}	
 			return response()->json([
 				'success' => true,
 				'data' => $postulantes,
@@ -767,20 +783,21 @@ class PostulanteController extends Controller
 				->leftJoin('raz_convocatorias_detalles', 'raz_convocatorias.id', '=', 'raz_convocatorias_detalles.convocatoria_id')
 				->where('raz_postulantes.convocatoria_id', $convocatoriaId)
 				->select(
-					'raz_postulantes.id',
-					'raz_postulantes.dni',
-					'raz_postulantes.nombres',
-					'raz_postulantes.ap_pat',
-					'raz_postulantes.ap_mat',
-					'raz_postulantes.celular',
-					'raz_postulantes.fecha_nac',
-					'raz_postulantes.experiencia_callcenter',
-					'raz_convocatorias.campana',
-					'raz_convocatorias.reclutadores_asignados',
-					'raz_convocatorias.fecha_inicio_capacitacion',
-					'raz_convocatorias_detalles.modalidad_trabajo'
-				)
-				->get();
+				'raz_postulantes.id',
+				'raz_postulantes.dni',
+				'raz_postulantes.nombres',
+				'raz_postulantes.ap_pat',
+				'raz_postulantes.ap_mat',
+				'raz_postulantes.celular',
+				'raz_postulantes.fecha_nac',
+				'raz_postulantes.experiencia_callcenter',
+				'raz_postulantes.tipo_gestion',
+				'raz_postulantes.modalidad_trabajo',
+				'raz_convocatorias.campana',
+				'raz_convocatorias.reclutadores_asignados',
+				'raz_convocatorias.fecha_inicio_capacitacion'
+			)
+			->get();
 
 			if ($postulantes->isEmpty()) {
 				return response()->json(['success' => false, 'error' => 'No hay postulantes en esta convocatoria'], 404);
@@ -793,17 +810,6 @@ class PostulanteController extends Controller
 				$dniCapacitador = $reclutadores[0];
 			}
 
-			// Mapear modalidad_trabajo a ModalidadID
-			$modalidadId = null;
-			if ($postulantes[0]->modalidad_trabajo) {
-				$modalidadLower = strtolower(trim($postulantes[0]->modalidad_trabajo));
-				if ($modalidadLower === 'presencial') {
-					$modalidadId = 1;
-				} elseif ($modalidadLower === 'remoto' || $modalidadLower === 'remote') {
-					$modalidadId = 2;
-				}
-			}
-
 			$campanaId = $postulantes[0]->campana;
 			$transferidos = 0;
 			$yaExistentes = 0;
@@ -812,38 +818,85 @@ class PostulanteController extends Controller
 			// Procesar cada postulante
 			foreach ($postulantes as $postulante) {
 				try {
-					// Verificar si ya existe en Postulantes_En_Formacion
-					$exists = DB::table('Postulantes_En_Formacion')
-						->where('DNI', $postulante->dni)
-						->exists();
+				// Extraer la fecha de inicio de capacitación
+				$fechaInicio = null;
+				if ($postulantes[0]->fecha_inicio_capacitacion) {
+					$fechaInicio = date('Y-m-d', strtotime($postulantes[0]->fecha_inicio_capacitacion));
+				}
+				
+				// Verificar si ya existe en Postulantes_En_Formacion para ESTA CAMPAÑA Y FECHA
+				// Permitimos el mismo DNI en diferentes campañas o en la misma campaña pero diferente período
+				$exists = DB::table('Postulantes_En_Formacion')
+					->where('DNI', $postulante->dni)
+					->where('CampañaID', $campanaId)
+					->where('FechaInicio', $fechaInicio)
+					->exists();
 
-					if ($exists) {
-						$yaExistentes++;
-						continue;
+				if ($exists) {
+					$yaExistentes++;
+					continue;
+				}
+
+				// Mapear modalidad_trabajo a ModalidadID para este postulante
+				$modalidadId = null;
+				if ($postulante->modalidad_trabajo) {
+					$modalidadLower = strtolower(trim($postulante->modalidad_trabajo));
+					if ($modalidadLower === 'presencial') {
+						$modalidadId = 1;
+					} elseif ($modalidadLower === 'remoto' || $modalidadLower === 'remote') {
+						$modalidadId = 2;
 					}
+				}
 
-					// Preparar datos para insertar
-					// Extraer solo la fecha (sin hora) de fecha_inicio_capacitacion
-					$fechaInicio = null;
-					if ($postulantes[0]->fecha_inicio_capacitacion) {
-						$fechaInicio = date('Y-m-d', strtotime($postulantes[0]->fecha_inicio_capacitacion));
+				// Obtener JornadaID y GrupoHorarioID siguiendo la cadena de relaciones
+			// tipo_gestion (HorarioID) → dbo.DetalleJornadaSemanal (GrupoID) → dbo.GruposDeHorario (JornadaID) → pri.Jornada
+			$jornadaId = null;
+			$grupoHorarioId = null;
+			if ($postulante->tipo_gestion) {
+				try {
+					$horarioId = $postulante->tipo_gestion;
+					
+					// Paso 1: Obtener GrupoID desde dbo.DetalleJornadaSemanal usando HorarioID
+					$detalle = DB::table('dbo.DetalleJornadaSemanal')
+						->where('HorarioID', $horarioId)
+						->first();
+					
+					if ($detalle && isset($detalle->GrupoID)) {
+						// Guardar el GrupoID para GrupoHorarioID
+						$grupoHorarioId = $detalle->GrupoID;
+						
+						// Paso 2: Obtener JornadaID desde dbo.GruposDeHorario usando GrupoID
+						$grupo = DB::table('dbo.GruposDeHorario')
+							->where('GrupoID', $detalle->GrupoID)
+							->first();
+						
+						if ($grupo && isset($grupo->JornadaID)) {
+							$jornadaId = $grupo->JornadaID;
+						}
 					}
+				} catch (\Exception $e) {
+					Log::warning("Error obteniendo JornadaID/GrupoHorarioID para HorarioID {$postulante->tipo_gestion}: " . $e->getMessage());
+				}
+			}
 
-					$data = [
-						'DNI' => $postulante->dni,
-						'Nombres' => $postulante->nombres,
-						'ApellidoPaterno' => $postulante->ap_pat,
-						'ApellidoMaterno' => $postulante->ap_mat,
-						'Telefono' => $postulante->celular,
-						'FechaNacimiento' => $postulante->fecha_nac,
-						'FechaInicio' => $fechaInicio,
-						'EstadoPostulante' => 'Capacitación',
-						'Experiencia' => $postulante->experiencia_callcenter === 'si' ? 'SI' : 'NO',
-						'DNI_Capacitador' => $dniCapacitador,
-						'CampañaID' => $campanaId,
-						'ModalidadID' => $modalidadId,
-					];
-
+				// Preparar datos para insertar
+				// Aplicar formato Title Case (primera letra mayúscula) a nombres y apellidos
+				$data = [
+					'DNI' => $postulante->dni,
+					'Nombres' => ucwords(strtolower($postulante->nombres)),
+					'ApellidoPaterno' => ucwords(strtolower($postulante->ap_pat)),
+					'ApellidoMaterno' => ucwords(strtolower($postulante->ap_mat)),
+					'Telefono' => $postulante->celular,
+					'FechaNacimiento' => $postulante->fecha_nac,
+					'FechaInicio' => $fechaInicio,
+					'EstadoPostulante' => 'Capacitación',
+					'Experiencia' => $postulante->experiencia_callcenter === 'si' ? 'Si' : 'No',
+					'DNI_Capacitador' => $dniCapacitador,
+					'CampañaID' => $campanaId,
+					'ModalidadID' => $modalidadId,
+					'JornadaID' => $jornadaId,
+					'GrupoHorarioID' => $grupoHorarioId,
+				];
 					// Insertar en Postulantes_En_Formacion
 					DB::table('Postulantes_En_Formacion')->insert($data);
 					$transferidos++;
@@ -981,6 +1034,190 @@ class PostulanteController extends Controller
 				'success' => false,
 				'error' => 'No se pudo obtener el historial: ' . $e->getMessage()
 			], 500);
+		}
+	}
+
+	/**
+	 * Exportar postulantes de una convocatoria a Excel
+	 */
+	public function exportarExcel($convocatoriaId)
+	{
+		try {
+			// Obtener postulantes con todos los campos necesarios
+			$postulantes = DB::table('raz_postulantes')
+				->where('convocatoria_id', $convocatoriaId)
+				->select(
+					'tipo_documento',
+					'dni',
+					'nombres',
+					'ap_pat',
+					'ap_mat',
+					'celular',
+					'correo',
+					'provincia',
+					'distrito',
+					'fecha_nac',
+					'experiencia_callcenter',
+					'discapacidad',
+					'tipo_discapacidad',
+					'tipo_contrato',
+					'modalidad_trabajo',
+					'tipo_gestion'
+				)
+				->orderBy('created_at', 'desc')
+				->get();
+
+			if ($postulantes->isEmpty()) {
+				return response()->json(['success' => false, 'error' => 'No hay postulantes en esta convocatoria'], 404);
+			}
+
+			// Crear nuevo archivo Excel
+			$spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+			$sheet = $spreadsheet->getActiveSheet();
+
+			// Configurar encabezados
+			$headers = [
+				'TIPO DE DOCUMENTO',
+				'N° DOCUMENTO',
+				'APELLIDOS Y NOMBRES',
+				'CELULAR',
+				'CORREO',
+				'PROVINCIA-DISTRITO',
+				'FECHA NACIMIENTO',
+				'EXPERIENCIA EN CALL',
+				'PRESENTA DISCAPACIDAD?',
+				'TIPO DE DISCAPACIDAD',
+				'TIPO DE CONTRATO',
+				'MODALIDAD DE TRABAJO',
+				'HORARIO DE GESTIÓN',
+				'TIPO DE GESTIÓN'
+			];
+
+			// Escribir encabezados
+			$col = 'A';
+			foreach ($headers as $header) {
+				$sheet->setCellValue($col . '1', $header);
+				$sheet->getStyle($col . '1')->getFont()->setBold(true);
+				$sheet->getStyle($col . '1')->getFill()
+					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+					->getStartColor()->setRGB('4472C4');
+				$sheet->getStyle($col . '1')->getFont()->getColor()->setRGB('FFFFFF');
+				$sheet->getStyle($col . '1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+				$col++;
+			}
+
+			// Escribir datos
+			$row = 2;
+			foreach ($postulantes as $postulante) {
+				// Concatenar apellidos y nombres
+				$nombreCompleto = trim(($postulante->nombres ?? '') . ' ' . ($postulante->ap_pat ?? '') . ' ' . ($postulante->ap_mat ?? ''));
+
+				// Concatenar provincia-distrito
+				$ubicacion = '';
+				if ($postulante->provincia && $postulante->distrito) {
+					$ubicacion = $postulante->provincia . '-' . $postulante->distrito;
+				} elseif ($postulante->provincia) {
+					$ubicacion = $postulante->provincia;
+				} elseif ($postulante->distrito) {
+					$ubicacion = $postulante->distrito;
+				}
+
+				// Obtener horario de gestión (HoraEntrada a HoraSalida)
+				$horarioGestion = '';
+				if ($postulante->tipo_gestion) {
+					try {
+						$horario = DB::table('dbo.Horarios_Base')
+							->where('HorarioID', $postulante->tipo_gestion)
+							->first();
+						
+						if ($horario && isset($horario->HoraEntrada) && isset($horario->HoraSalida)) {
+							// Formatear horas (07:00:00.0000000 -> 07:00)
+							$horaEntrada = substr($horario->HoraEntrada, 0, 5);
+							$horaSalida = substr($horario->HoraSalida, 0, 5);
+							$horarioGestion = $horaEntrada . ' a ' . $horaSalida;
+						}
+					} catch (\Exception $e) {
+						Log::warning("Error obteniendo horario para HorarioID {$postulante->tipo_gestion}: " . $e->getMessage());
+					}
+				}
+
+				// Obtener tipo de gestión (NombreJornada)
+				$tipoGestion = '';
+				if ($postulante->tipo_gestion) {
+					try {
+						// Obtener GrupoID desde DetalleJornadaSemanal
+						$detalle = DB::table('dbo.DetalleJornadaSemanal')
+							->where('HorarioID', $postulante->tipo_gestion)
+							->first();
+						
+						if ($detalle && isset($detalle->GrupoID)) {
+							// Obtener JornadaID desde GruposDeHorario
+							$grupo = DB::table('dbo.GruposDeHorario')
+								->where('GrupoID', $detalle->GrupoID)
+								->first();
+							
+							if ($grupo && isset($grupo->JornadaID)) {
+								// Obtener NombreJornada desde pri.Jornada
+								$jornada = DB::table('pri.Jornada')
+									->where('JornadaID', $grupo->JornadaID)
+									->first();
+								
+								if ($jornada && isset($jornada->NombreJornada)) {
+									$tipoGestion = $jornada->NombreJornada;
+								}
+							}
+						}
+					} catch (\Exception $e) {
+						Log::warning("Error obteniendo tipo de gestión para HorarioID {$postulante->tipo_gestion}: " . $e->getMessage());
+					}
+				}
+
+				// Escribir fila
+				$sheet->setCellValue('A' . $row, $postulante->tipo_documento ?? '');
+				$sheet->setCellValue('B' . $row, $postulante->dni ?? '');
+				$sheet->setCellValue('C' . $row, $nombreCompleto);
+				$sheet->setCellValue('D' . $row, $postulante->celular ?? '');
+				$sheet->setCellValue('E' . $row, $postulante->correo ?? '');
+				$sheet->setCellValue('F' . $row, $ubicacion);
+				$sheet->setCellValue('G' . $row, $postulante->fecha_nac ?? '');
+				$sheet->setCellValue('H' . $row, $postulante->experiencia_callcenter ?? '');
+				$sheet->setCellValue('I' . $row, $postulante->discapacidad ?? '');
+				$sheet->setCellValue('J' . $row, $postulante->tipo_discapacidad ?? '');
+				$sheet->setCellValue('K' . $row, $postulante->tipo_contrato ?? '');
+				$sheet->setCellValue('L' . $row, $postulante->modalidad_trabajo ?? '');
+				$sheet->setCellValue('M' . $row, $horarioGestion);
+				$sheet->setCellValue('N' . $row, $tipoGestion);
+
+				$row++;
+			}
+
+			// Autoajustar columnas
+			foreach (range('A', 'N') as $col) {
+				$sheet->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			// Aplicar bordes a toda la tabla
+			$styleArray = [
+				'borders' => [
+					'allBorders' => [
+						'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+						'color' => ['rgb' => '000000'],
+					],
+				],
+			];
+			$sheet->getStyle('A1:N' . ($row - 1))->applyFromArray($styleArray);
+
+			// Generar archivo
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+			$fileName = 'Postulantes_Convocatoria_' . $convocatoriaId . '_' . date('YmdHis') . '.xlsx';
+			$tempFile = tempnam(sys_get_temp_dir(), $fileName);
+			$writer->save($tempFile);
+
+			return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+
+		} catch (\Exception $e) {
+			Log::error('Error exportando Excel: ' . $e->getMessage());
+			return response()->json(['success' => false, 'error' => 'Error al generar el archivo Excel: ' . $e->getMessage()], 500);
 		}
 	}
 }

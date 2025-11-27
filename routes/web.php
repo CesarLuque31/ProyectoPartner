@@ -130,6 +130,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/postulantes/{dni}/historial', [\App\Http\Controllers\PostulanteController::class, 'getHistorialCapacitacion'])
             ->name('postulantes.historial');
 
+        // Exportar postulantes de una convocatoria a Excel
+        Route::get('/convocatorias/{id}/exportar-excel', [\App\Http\Controllers\PostulanteController::class, 'exportarExcel'])
+            ->name('convocatorias.exportar-excel');
+
         Route::get('/postulantes/{id}', [\App\Http\Controllers\PostulanteController::class, 'show'])
             ->name('postulantes.show');
     });
