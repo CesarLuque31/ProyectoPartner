@@ -122,6 +122,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/convocatorias/{id}/postulantes', [\App\Http\Controllers\PostulanteController::class, 'byConvocatoria'])
             ->name('convocatorias.postulantes');
 
+        // Capacitar todos los postulantes de una convocatoria (transferir a Postulantes_En_Formacion)
+        Route::post('/convocatorias/{id}/capacitar', [\App\Http\Controllers\PostulanteController::class, 'capacitarConvocatoria'])
+            ->name('convocatorias.capacitar');
+
+        // Obtener historial de capacitaciones de un postulante
+        Route::get('/postulantes/{dni}/historial', [\App\Http\Controllers\PostulanteController::class, 'getHistorialCapacitacion'])
+            ->name('postulantes.historial');
+
         Route::get('/postulantes/{id}', [\App\Http\Controllers\PostulanteController::class, 'show'])
             ->name('postulantes.show');
     });

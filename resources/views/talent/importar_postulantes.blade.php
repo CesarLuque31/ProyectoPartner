@@ -184,38 +184,38 @@
                     seccionResultados.classList.remove('hidden');
 
                     let html = `
-                                <div class="space-y-4">
-                                    <div class="grid grid-cols-3 gap-4">
-                                        <div class="bg-verde bg-opacity-20 p-4 rounded-lg border border-verde">
-                                            <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">EXITOSOS</p>
-                                            <p class="text-2xl font-bold text-verde">${data.exitosos || 0}</p>
-                                        </div>
-                                        <div class="bg-naranja bg-opacity-20 p-4 rounded-lg border border-naranja">
-                                            <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">ERRORES</p>
-                                            <p class="text-2xl font-bold text-naranja">${data.errores || 0}</p>
-                                        </div>
-                                        <div class="bg-azul-noche bg-opacity-20 p-4 rounded-lg border border-azul-noche">
-                                            <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">TOTAL</p>
-                                            <p class="text-2xl font-bold text-azul-noche">${data.total || 0}</p>
-                                        </div>
-                                    </div>
-                            `;
+                                        <div class="space-y-4">
+                                            <div class="grid grid-cols-3 gap-4">
+                                                <div class="bg-verde bg-opacity-20 p-4 rounded-lg border border-verde">
+                                                    <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">EXITOSOS</p>
+                                                    <p class="text-2xl font-bold text-verde">${data.exitosos || 0}</p>
+                                                </div>
+                                                <div class="bg-naranja bg-opacity-20 p-4 rounded-lg border border-naranja">
+                                                    <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">ERRORES</p>
+                                                    <p class="text-2xl font-bold text-naranja">${data.errores || 0}</p>
+                                                </div>
+                                                <div class="bg-azul-noche bg-opacity-20 p-4 rounded-lg border border-azul-noche">
+                                                    <p class="text-xs text-azul-noche text-opacity-60 font-semibold mb-1">TOTAL</p>
+                                                    <p class="text-2xl font-bold text-azul-noche">${data.total || 0}</p>
+                                                </div>
+                                            </div>
+                                    `;
 
                     if (data.detalles_errores && data.detalles_errores.length > 0) {
                         html += `
-                                    <div class="mt-4">
-                                        <p class="text-sm font-semibold text-azul-noche mb-2">Detalles de Errores:</p>
-                                        <div class="border border-naranja border-opacity-30 rounded-lg p-3">
-                                            <ul class="space-y-1 text-sm text-azul-noche">
-                                `;
+                                            <div class="mt-4">
+                                                <p class="text-sm font-semibold text-azul-noche mb-2">Detalles de Errores:</p>
+                                                <div class="border border-naranja border-opacity-30 rounded-lg p-3">
+                                                    <ul class="space-y-1 text-sm text-azul-noche">
+                                        `;
                         data.detalles_errores.forEach((error, index) => {
                             html += `<li class="flex items-start"><span class="text-naranja mr-2">${index + 1}.</span><span>${error}</span></li>`;
                         });
                         html += `
-                                            </ul>
-                                        </div>
-                                    </div>
-                                `;
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        `;
                     }
 
                     html += `</div>`; // Close the .space-y-4 div

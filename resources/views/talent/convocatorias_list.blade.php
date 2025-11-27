@@ -566,945 +566,1108 @@
                     }
 
                     return `
-                                                                                                                    <div class="bg-white shadow-lg rounded-lg border border-azul-noche border-opacity-20 overflow-hidden convocatoria-item hover:shadow-xl transition-all">
-                                                                                                                        <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-4 py-3">
-                                                                                                                            <div class="flex justify-between items-center">
-                                                                                                                                <div class="flex items-center gap-3">
-                                                                                                                                    <h3 class="text-lg font-bold text-white">${c.campania_nombre}</h3>
-                                                                                                                                    <span class="px-2 py-0.5 rounded text-xs font-semibold ${c.estado === 'Abierta' ? 'bg-verde text-white' : 'bg-amarillo text-azul-noche'}">
-                                                                                                                                        ${c.estado}
-                                                                                                                                    </span>
-                                                                                                                                </div>
-                                                                                                                                <p class="text-xs text-white text-opacity-80">
-                                                                                                                                    ${c.created_at}
-                                                                                                                                </p>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                        <div class="p-4">
-                                                                                                                            <div class="grid grid-cols-3 gap-3 mb-3">
-                                                                                                                                <div>
-                                                                                                                                    <p class="text-xs text-azul-noche text-opacity-60 mb-1">Cargo</p>
-                                                                                                                                    <p class="text-sm font-semibold text-azul-noche">${c.cargo_nombre}</p>
-                                                                                                                                </div>
-                                                                                                                                <div>
-                                                                                                                                    <p class="text-xs text-azul-noche text-opacity-60 mb-1">Vacantes</p>
-                                                                                                                                    <p class="text-sm font-semibold text-azul-noche">${c.requerimiento_personal}</p>
-                                                                                                                                </div>
-                                                                                                                                <div>
-                                                                                                                                    <p class="text-xs text-azul-noche text-opacity-60 mb-1">Experiencia</p>
-                                                                                                                                    <p class="text-sm font-semibold text-azul-noche">${c.experiencia_label}</p>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                            <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
-                                                                                                                                <div>
-                                                                                                                                    <p class="text-azul-noche text-opacity-60 mb-1">Inicio Capacitación</p>
-                                                                                                                                    <p class="text-azul-noche font-medium">${c.fecha_inicio_capacitacion}</p>
-                                                                                                                                </div>
-                                                                                                                                <div>
-                                                                                                                                    <p class="text-azul-noche text-opacity-60 mb-1">Fin Capacitación</p>
-                                                                                                                                    <p class="text-azul-noche font-medium">${c.fecha_fin_capacitacion}</p>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                            ${turnos ? `<div class="mb-3">
-                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 mb-1">Turnos</p>
-                                                                                                                                <div class="flex flex-wrap gap-1.5">${turnos}</div>
-                                                                                                                            </div>` : ''}
-                                                                                                                            ${recAsignados && recAsignados.includes('Sin reclutadores') === false ? `<div class="mb-3">
-                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 mb-1">Reclutadores</p>
-                                                                                                                                <div class="flex flex-wrap gap-1.5">${recAsignados}</div>
-                                                                                                                            </div>` : ''}
-                                                                                                                            <div class="pt-3 border-t border-azul-noche border-opacity-10 flex items-center gap-2">
-                                                                                                                                <button type="button" class="detalles-conv-btn flex-1 bg-azul-noche hover:bg-azul-noche hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}">
-                                                                                                                                    <i class="fas fa-info-circle mr-1.5"></i> Detalles
-                                                                                                                                </button>
-                                                                                                                                <button type="button" class="swal-assign-btn flex-1 bg-celeste hover:bg-celeste hover:bg-opacity-80 text-azul-noche px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}" data-reclutadores='${JSON.stringify(c.reclutadores_asignados || [])}'>
-                                                                                                                                    <i class="fas fa-users mr-1.5"></i> Asignar
-                                                                                                                                </button>
-                                                                                                                                <button type="button" class="insertar-postulante-btn flex-1 bg-verde hover:bg-verde hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
-                                                                                                                                    <i class="fas fa-user-plus mr-1.5"></i> Postulante
-                                                                                                                                </button>
-                                                                                                                                <form action="/convocatorias/${c.id}" method="POST" class="inline delete-conv-form">
-                                                                                                                                    <input type="hidden" name="_token" value="${c.csrf_token}">
-                                                                                                                                    <input type="hidden" name="_method" value="DELETE">
-                                                                                                                                    <button type="button" class="swal-delete-btn bg-naranja hover:bg-naranja hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center">
-                                                                                                                                        <i class="fas fa-trash"></i>
-                                                                                                                                    </button>
-                                                                                                                                                                                                                    </form>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                    `;
-                        }
+                                                                                                                                                                                                            <div class="bg-white shadow-lg rounded-lg border border-azul-noche border-opacity-20 overflow-hidden convocatoria-item hover:shadow-xl transition-all">
+                                                                                                                                                                                                                <div class="bg-gradient-to-r from-azul-noche to-azul-noche px-4 py-3">
+                                                                                                                                                                                                                    <div class="flex justify-between items-center">
+                                                                                                                                                                                                                        <div class="flex items-center gap-3">
+                                                                                                                                                                                                                            <h3 class="text-lg font-bold text-white">${c.campania_nombre}</h3>
+                                                                                                                                                                                                                            <span class="px-2 py-0.5 rounded text-xs font-semibold ${c.estado === 'Abierta' ? 'bg-verde text-white' : 'bg-amarillo text-azul-noche'}">
+                                                                                                                                                                                                                                ${c.estado}
+                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                        <p class="text-xs text-white text-opacity-80">
+                                                                                                                                                                                                                            ${c.created_at}
+                                                                                                                                                                                                                        </p>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                <div class="p-4">
+                                                                                                                                                                                                                    <div class="grid grid-cols-3 gap-3 mb-3">
+                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                            <p class="text-xs text-azul-noche text-opacity-60 mb-1">Cargo</p>
+                                                                                                                                                                                                                            <p class="text-sm font-semibold text-azul-noche">${c.cargo_nombre}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                            <p class="text-xs text-azul-noche text-opacity-60 mb-1">Vacantes</p>
+                                                                                                                                                                                                                            <p class="text-sm font-semibold text-azul-noche">${c.requerimiento_personal}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                            <p class="text-xs text-azul-noche text-opacity-60 mb-1">Experiencia</p>
+                                                                                                                                                                                                                            <p class="text-sm font-semibold text-azul-noche">${c.experiencia_label}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                    <div class="grid grid-cols-2 gap-3 mb-3 text-xs">
+                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                            <p class="text-azul-noche text-opacity-60 mb-1">Inicio Capacitación</p>
+                                                                                                                                                                                                                            <p class="text-azul-noche font-medium">${c.fecha_inicio_capacitacion}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                            <p class="text-azul-noche text-opacity-60 mb-1">Fin Capacitación</p>
+                                                                                                                                                                                                                            <p class="text-azul-noche font-medium">${c.fecha_fin_capacitacion}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                    ${turnos ? `<div class="mb-3">
+                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 mb-1">Turnos</p>
+                                                                                                                                                                                                                        <div class="flex flex-wrap gap-1.5">${turnos}</div>
+                                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                    ${recAsignados && recAsignados.includes('Sin reclutadores') === false ? `<div class="mb-3">
+                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 mb-1">Reclutadores</p>
+                                                                                                                                                                                                                        <div class="flex flex-wrap gap-1.5">${recAsignados}</div>
+                                                                                                                                                                                                                    </div>` : ''}
+                                                                                                                                                                                                                    <div class="pt-3 border-t border-azul-noche border-opacity-10 flex items-center gap-2">
+                                                                                                                                                                                                                        <button type="button" class="detalles-conv-btn flex-1 bg-azul-noche hover:bg-azul-noche hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}">
+                                                                                                                                                                                                                            <i class="fas fa-info-circle mr-1.5"></i> Detalles
+                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                        <button type="button" class="swal-assign-btn flex-1 bg-celeste hover:bg-celeste hover:bg-opacity-80 text-azul-noche px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}" data-reclutadores='${JSON.stringify(c.reclutadores_asignados || [])}'>
+                                                                                                                                                                                                                            <i class="fas fa-users mr-1.5"></i> Asignar
+                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                        <button type="button" class="insertar-postulante-btn flex-1 bg-verde hover:bg-verde hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center" data-conv-id="${c.id}" data-conv-name="${c.campania_nombre}">
+                                                                                                                                                                                                                            <i class="fas fa-user-plus mr-1.5"></i> Postulante
+                                                                                                                                                                                                                        </button>
+                                                                                                                                                                                                                        <form action="/convocatorias/${c.id}" method="POST" class="inline delete-conv-form">
+                                                                                                                                                                                                                            <input type="hidden" name="_token" value="${c.csrf_token}">
+                                                                                                                                                                                                                            <input type="hidden" name="_method" value="DELETE">
+                                                                                                                                                                                                                            <button type="button" class="swal-delete-btn bg-naranja hover:bg-naranja hover:bg-opacity-90 text-white px-3 py-2 rounded text-xs font-semibold transition-all flex items-center justify-center">
+                                                                                                                                                                                                                                <i class="fas fa-trash"></i>
+                                                                                                                                                                                                                            </button>
+                                                                                                                                                                                                                                                                                                            </form>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                   </div>
+                                                                                                                                                                            </div>
+                                                                                                                                                                                                            `;
+                }
 
-                        function aplicarFiltros() {
-                            // Construir objeto de filtros
-                            const data = {
-                                campana: filtros.campana.value,
-                                cargo: filtros.cargo.value,
-                                estado: filtros.estado.value,
-                                fecha_inicio: filtros.fechaInicio.value,
-                                fecha_fin: filtros.fechaFin.value,
-                                reclutador: filtros.reclutador.value
-                            };
-                            container.innerHTML = '';
-                            container.classList.add('hidden');
-                            emptyMsg.classList.add('hidden');
-                            fetch('/convocatorias/filtrar', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify(data)
-                            })
-                                .then(res => res.json())
-                                .then(resp => {
-                                    if (Array.isArray(resp.convocatorias) && resp.convocatorias.length > 0) {
-                                        container.classList.remove('hidden');
-                                        emptyMsg.classList.add('hidden');
-                                        resp.convocatorias.forEach(c => {
-                                            container.innerHTML += renderConvocatoriaCard(c, resp.campanias, resp.cargos, resp.horarios, resp.reclutadores_disponibles);
-                                        });
-                                    } else {
-                                        container.classList.add('hidden');
-                                        emptyMsg.classList.remove('hidden');
-                                    }
-                                })
-                                .catch(() => {
-                                    container.classList.add('hidden');
-                                    emptyMsg.classList.remove('hidden');
+                function aplicarFiltros() {
+                    // Construir objeto de filtros
+                    const data = {
+                        campana: filtros.campana.value,
+                        cargo: filtros.cargo.value,
+                        estado: filtros.estado.value,
+                        fecha_inicio: filtros.fechaInicio.value,
+                        fecha_fin: filtros.fechaFin.value,
+                        reclutador: filtros.reclutador.value
+                    };
+                    container.innerHTML = '';
+                    container.classList.add('hidden');
+                    emptyMsg.classList.add('hidden');
+                    fetch('/convocatorias/filtrar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
+                    })
+                        .then(res => res.json())
+                        .then(resp => {
+                            if (Array.isArray(resp.convocatorias) && resp.convocatorias.length > 0) {
+                                container.classList.remove('hidden');
+                                emptyMsg.classList.add('hidden');
+                                resp.convocatorias.forEach(c => {
+                                    container.innerHTML += renderConvocatoriaCard(c, resp.campanias, resp.cargos, resp.horarios, resp.reclutadores_disponibles);
                                 });
-                        }
-
-                        function limpiarFiltros() {
-                            filtros.campana.value = '';
-                            filtros.cargo.value = '';
-                            filtros.estado.value = '';
-                            filtros.fechaInicio.value = '';
-                            filtros.fechaFin.value = '';
-                            filtros.reclutador.value = '';
-                            container.innerHTML = '';
-                            container.classList.add('hidden');
-                            emptyMsg.classList.add('hidden');
-                        }
-
-                        if (btnAplicar) btnAplicar.addEventListener('click', aplicarFiltros);
-                        if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
-
-                        // Escuchar evento de creación de convocatoria para refrescar la lista sin recargar
-                        window.addEventListener('convocatoria:created', function() {
-                            aplicarFiltros();
-                        });
-
-                        // Las convocatorias solo se cargan cuando se aplican los filtros
-
-                        // Aquí puedes agregar los listeners para los botones de eliminar y asignar reclutadores después de renderizar
-                        // (puedes usar event delegation si lo prefieres)
-                        // Listener global para botones 'Insertar Postulante' generados dinámicamente
-                        document.addEventListener('click', function (e) {
-                            const btn = e.target.closest && e.target.closest('.insertar-postulante-btn');
-                            if (!btn) return;
-                            const convId = btn.getAttribute('data-conv-id');
-                            const convName = btn.getAttribute('data-conv-name');
-                            const convTitle = btn.getAttribute('data-conv-title') || convName || '';
-
-                            // Abrir modal y pasar datos
-                            openPostulanteModal(convId, convTitle);
-                        });
-
-                        // Delegación para botones de eliminar y asignar reclutadores
-                        document.addEventListener('click', function (e) {
-                            const delBtn = e.target.closest && e.target.closest('.swal-delete-btn');
-                            if (delBtn) {
-                                e.preventDefault();
-                                const form = delBtn.closest('.delete-conv-form');
-                                if (!form) return;
-                                const formData = new FormData(form);
-                                const url = form.getAttribute('action');
-
-                                Swal.fire({
-                                    title: '¿Eliminar convocatoria?',
-                                    text: 'Esta acción no se puede deshacer.',
-                                    icon: 'warning',
-                                    showCancelButton: true,
-                                    confirmButtonColor: '#d33',
-                                    cancelButtonColor: '#3085d6',
-                                    confirmButtonText: 'Sí, eliminar',
-                                    cancelButtonText: 'Cancelar'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        fetch(url, {
-                                            method: 'POST',
-                                            headers: {
-                                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                                'X-HTTP-Method-Override': 'DELETE'
-                                            },
-                                            body: formData
-                                        })
-                                            .then(response => response.text())
-                                            .then(html => {
-                                                Swal.fire({
-                                                    icon: 'success',
-                                                    title: '¡Eliminada!',
-                                                    text: 'La convocatoria ha sido eliminada exitosamente.',
-                                                    showConfirmButton: false,
-                                                    timer: 2000,
-                                                    toast: true,
-                                                    position: 'top-end'
-                                                }).then(() => { location.reload(); });
-                                            })
-                                            .catch(error => {
-                                                Swal.fire('Error', 'No se pudo eliminar la convocatoria', 'error');
-                                                console.error(error);
-                                            });
-                                    }
-                                });
-                                return;
-                            }
-
-                            const assignBtn = e.target.closest && e.target.closest('.swal-assign-btn');
-                            if (assignBtn) {
-                                e.preventDefault();
-                                const convID = assignBtn.getAttribute('data-conv-id');
-                                const convName = assignBtn.getAttribute('data-conv-name');
-                                const reclutadoresDisp = {!! json_encode($reclutadores_disponibles) !!};
-                                
-                                // Obtener reclutadores asignados desde el atributo data
-                                let currentReclutadoresRaw = assignBtn.getAttribute('data-reclutadores');
-                                let currentReclutadores = [];
-                                
-                                try {
-                                    if (currentReclutadoresRaw) {
-                                        currentReclutadores = JSON.parse(currentReclutadoresRaw);
-                                    }
-                                } catch (err) {
-                                    console.error('Error parsing reclutadores:', err);
-                                    currentReclutadores = [];
-                                }
-
-                                // Convertir todos a strings para comparación simple
-                                currentReclutadores = currentReclutadores.map(v => String(v));
-
-                                // Crear opciones para Select2
-                                let options = '';
-                                for (let id in reclutadoresDisp) {
-                                    const idStr = String(id);
-                                    const selected = currentReclutadores.includes(idStr) ? 'selected' : '';
-                                    options += `<option value="${id}" ${selected}>${reclutadoresDisp[id]}</option>`;
-                                }
-
-                                Swal.fire({
-                                    title: `Asignar Reclutadores`,
-                                    html: `
-                                                                                                                                    <div class="text-left">
-                                                                                                                                        <p class="mb-4 text-sm text-gray-600"><strong>Convocatoria:</strong> ${convName}</p>
-                                                                                                                                        <select id="swal-reclutadores-select" class="w-full" multiple="multiple">
-                                                                                                                                            ${options}
-                                                                                                                                        </select>
-                                                                                                                                    </div>
-                                                                                                                                `,
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Guardar',
-                                    cancelButtonText: 'Cancelar',
-                                    didOpen: () => {
-                                        // Inicializar Select2 después de que el HTML se renderize
-                                        if (window.jQuery && $.fn.select2) {
-                                            const $sel = $('#swal-reclutadores-select');
-                                            $sel.select2({
-                                                dropdownParent: $('.swal2-container'),
-                                                placeholder: 'Selecciona reclutadores',
-                                                allowClear: true,
-                                                width: '100%'
-                                            });
-                                            // Forzar valores seleccionados (asegura compatibilidad)
-                                            $sel.val(currentReclutadores).trigger('change');
-                                        } else {
-                                            // Si no hay select2, nada más: los <option selected> ya marcan selección nativa
-                                        }
-                                    },
-                                    preConfirm: () => {
-                                        const selected = window.jQuery && $.fn.select2 ? $('#swal-reclutadores-select').val() || [] : Array.from(document.getElementById('swal-reclutadores-select').selectedOptions).map(o => o.value);
-                                        return selected;
-                                    }
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        const selectedReclutadores = result.value;
-                                        fetch(`/convocatorias/${convID}/assign-reclutadores`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                            },
-                                            body: JSON.stringify({ reclutadores: selectedReclutadores })
-                                        })
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                Swal.fire('Éxito', 'Reclutadores asignados correctamente', 'success')
-                                                    .then(() => { 
-                                                        // Actualizar la lista manteniendo filtros en lugar de recargar
-                                                        aplicarFiltros(); 
-                                                    });
-                                            })
-                                            .catch(error => {
-                                                Swal.fire('Error', 'No se pudo asignar reclutadores', 'error');
-                                            });
-                                    }
-                                });
-
-                                return;
-                            }
-                        });
-
-                        function escapeHtml(str) {
-                            if (!str) return '';
-                            return String(str)
-                                .replace(/&/g, '&amp;')
-                                .replace(/</g, '&lt;')
-                                .replace(/>/g, '&gt;')
-                                .replace(/"/g, '&quot;')
-                                .replace(/'/g, '&#039;');
-                        }
-
-                        function openPostulanteModal(convocatoriaId, convocatoriaTitle) {
-                            const modal = document.getElementById('modal-insertar-postulante');
-                            if (!modal) return;
-                            // Set convocatoria-id hidden input inside partial if present
-                            const hidden = modal.querySelector('#convocatoria-id');
-                            if (hidden) hidden.value = convocatoriaId;
-                            const hiddenImportar = modal.querySelector('#convocatoria-id-importar');
-                            if (hiddenImportar) hiddenImportar.value = convocatoriaId;
-                            // Show modal
-                            modal.classList.remove('hidden');
-                            // Activate Postulantes tab by default
-                            activateTab('postulantes');
-                            // Load postulantes for this convocatoria
-                            loadModalPostulantes(convocatoriaId);
-                            // Emitir evento para que el partial de importación sepa el convocatoria_id
-                            window.dispatchEvent(new CustomEvent('postulante:modal-opened', {
-                                detail: { convocatoria_id: convocatoriaId }
-                            }));
-                        }
-
-                        function closePostulanteModal() {
-                            const modal = document.getElementById('modal-insertar-postulante');
-                            if (modal) modal.classList.add('hidden');
-                        }
-
-                        // Botón cerrar
-                        const cerrarBtn = document.getElementById('cerrar-modal-postulante');
-                        if (cerrarBtn) cerrarBtn.addEventListener('click', function () { closePostulanteModal(); });
-
-                        // Cerrar modal al hacer click en el backdrop (fuera del panel)
-                        const modalOverlay = document.getElementById('modal-insertar-postulante');
-                        if (modalOverlay) {
-                            modalOverlay.addEventListener('click', function (ev) {
-                                // Si el click es sobre el overlay (no dentro del contenido), cerramos
-                                if (ev.target === modalOverlay) closePostulanteModal();
-                            });
-                        }
-
-                        // Tabs
-                        const tabPost = document.getElementById('tab-postulantes');
-                        const tabIns = document.getElementById('tab-insertar');
-                        const tabImp = document.getElementById('tab-importar');
-                        if (tabPost) tabPost.addEventListener('click', function () { activateTab('postulantes'); });
-                        if (tabIns) tabIns.addEventListener('click', function () { activateTab('insertar'); });
-                        if (tabImp) tabImp.addEventListener('click', function () { activateTab('importar'); });
-
-                        function activateTab(name) {
-                            const tabP = document.getElementById('tab-panel-postulantes');
-                            const tabI = document.getElementById('tab-panel-insertar');
-                            const tabImp = document.getElementById('tab-panel-importar');
-                            const tPost = document.getElementById('tab-postulantes');
-                            const tIns = document.getElementById('tab-insertar');
-                            const tImp = document.getElementById('tab-importar');
-                            if (!tabP || !tabI || !tabImp || !tPost || !tIns || !tImp) return;
-
-                            // Ocultar todos los paneles
-                            tabP.classList.add('hidden');
-                            tabI.classList.add('hidden');
-                            tabImp.classList.add('hidden');
-
-                            // Resetear estilos de todas las pestañas
-                            [tPost, tIns, tImp].forEach(tab => {
-                                tab.classList.remove('border-naranja', 'text-azul-noche', 'bg-white');
-                                tab.classList.add('border-transparent', 'text-azul-noche', 'text-opacity-60');
-                            });
-
-                            // Activar la pestaña seleccionada
-                            if (name === 'postulantes') {
-                                tabP.classList.remove('hidden');
-                                tPost.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
-                                tPost.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
-                            } else if (name === 'insertar') {
-                                tabI.classList.remove('hidden');
-                                tIns.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
-                                tIns.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
-                            } else if (name === 'importar') {
-                                tabImp.classList.remove('hidden');
-                                tImp.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
-                                tImp.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
-                            }
-                        }
-
-                        async function loadModalPostulantes(convocatoriaId) {
-                            const listEl = document.getElementById('modal-postulantes-list');
-                            if (!listEl) return;
-                            listEl.innerHTML = '<p class="text-sm text-gray-600">Cargando postulantes...</p>';
-                            try {
-                                const res = await fetch(`/convocatorias/${convocatoriaId}/postulantes`);
-                                if (!res.ok) throw new Error('Error al cargar postulantes');
-                                const data = await res.json();
-                                const postulantes = Array.isArray(data) ? data : (data.data || []);
-                                if (!Array.isArray(postulantes) || postulantes.length === 0) {
-                                    listEl.innerHTML = '<p class="text-sm text-gray-600">No hay postulantes para esta convocatoria.</p>';
-                                    return;
-                                }
-                                const rows = postulantes.map(p => {
-                                    const nombre = [p.nombres, p.ap_pat, p.ap_mat].filter(Boolean).join(' ') || (p.nombre_completo || 'Sin nombre');
-                                    // Formatear tipo de documento y número
-                                    const tipoDoc = p.tipo_documento || 'DNI';
-                                    const numDoc = p.dni || 'Sin registro';
-                                    const documentoCompleto = tipoDoc === 'Carnet de Extranjería'
-                                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded bg-naranja bg-opacity-20 text-naranja text-xs font-medium mr-1">CE</span>${escapeHtml(numDoc)}`
-                                        : `<span class="inline-flex items-center px-2 py-0.5 rounded bg-azul-noche bg-opacity-20 text-azul-noche text-xs font-medium mr-1">DNI</span>${escapeHtml(numDoc)}`;
-
-                                    return `
-                                                                                                                                    <tr class="border-b border-celeste border-opacity-40">
-                                                                                                                                        <td class="px-4 py-2 font-medium text-azul-noche">${escapeHtml(nombre)}</td>
-                                                                                                                                        <td class="px-4 py-2 text-azul-noche text-opacity-80 font-mono">${documentoCompleto}</td>
-                                                                                                                                        <td class="px-4 py-2 text-right">
-                                                                                                                                            <button type="button" class="detalle-postulante-btn inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-azul-noche rounded-full hover:bg-azul-noche/80 transition" data-postulante-id="${p.id || ''}">
-                                                                                                                                                <i class="fas fa-eye text-xs"></i> Ver detalle
-                                                                                                                                            </button>
-                                                                                                                                        </td>
-                                                                                                                                    </tr>
-                                                                                                                                `;
-                                }).join('');
-                                listEl.innerHTML = `
-                                                                                                                                <div class="space-y-3">
-                                                                                                                                    <div class="text-sm text-azul-noche text-opacity-70 font-medium">Postulantes registrados: ${postulantes.length}</div>
-                                                                                                                                    <div class="overflow-x-auto rounded-xl border border-celeste border-opacity-40 shadow-sm">
-                                                                                                                                        <table class="min-w-full text-sm text-left text-azul-noche">
-                                                                                                                                            <thead class="bg-celeste bg-opacity-50 text-azul-noche font-semibold">
-                                                                                                                                                <tr>
-                                                                                                                                                    <th class="px-4 py-3">Nombre completo</th>
-                                                                                                                                                    <th class="px-4 py-3">Documento</th>
-                                                                                                                                                    <th class="px-4 py-3 text-right">Acciones</th>
-                                                                                                                                                </tr>
-                                                                                                                                            </thead>
-                                                                                                                                            <tbody class="bg-white">
-                                                                                                                                                ${rows}
-                                                                                                                                            </tbody>
-                                                                                                                                        </table>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            `;
-                            } catch (err) {
-                                listEl.innerHTML = `<p class="text-sm text-red-600">${escapeHtml(err.message)}</p>`;
-                            }
-                        }
-
-                        // Escuchar evento disparado por el partial tras guardar
-                        window.addEventListener('postulante:created', function (ev) {
-                            const convId = ev.detail && ev.detail.convocatoria_id;
-                            if (convId) {
-                                const modal = document.getElementById('modal-insertar-postulante');
-                                if (modal && !modal.classList.contains('hidden')) {
-                                    loadModalPostulantes(convId);
-                                    activateTab('postulantes');
-                                }
-                            }
-                        });
-
-                        // Listener para botones de detalles del postulante (event delegation)
-                        document.addEventListener('click', function (e) {
-                            const btn = e.target.closest('.detalle-postulante-btn');
-                            if (!btn) return;
-                            const postulanteId = btn.getAttribute('data-postulante-id');
-                            if (postulanteId) {
-                                loadDetallePostulante(postulanteId);
-                            }
-                        });
-
-                        // Función para cargar y mostrar detalles del postulante
-                        async function loadDetallePostulante(postulanteId) {
-                            const modal = document.getElementById('modal-detalles-postulante');
-                            const content = document.getElementById('detalle-postulante-content');
-                            if (!modal || !content) return;
-
-                            modal.classList.remove('hidden');
-                            content.innerHTML = `
-                                                                                                                            <div class="flex items-center justify-center py-8">
-                                                                                                                                <div class="text-center">
-                                                                                                                                    <i class="fas fa-spinner fa-spin text-naranja text-2xl mb-2"></i>
-                                                                                                                                    <p class="text-sm text-gray-600">Cargando detalles...</p>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                        `;
-
-                            try {
-                                const res = await fetch(`/postulantes/${postulanteId}`);
-                                if (!res.ok) throw new Error('Error al cargar detalles');
-                                const data = await res.json();
-                                if (!data.success || !data.data) {
-                                    throw new Error('No se encontraron datos');
-                                }
-
-                                const p = data.data;
-                                const nombreCompleto = [p.nombres, p.ap_pat, p.ap_mat].filter(Boolean).join(' ') || 'Sin nombre';
-                                const fechaNac = p.fecha_nac ? formatDate(p.fecha_nac) : 'N/A';
-                                const sexo = p.sexo === '1' ? 'Masculino' : (p.sexo === '2' ? 'Femenino' : 'No especificado');
-                                const experiencia = p.experiencia_callcenter === 'si' ? 'Sí' : 'No';
-                                const discapacidad = p.discapacidad === 'si' ? 'Sí' : 'No';
-                                const tipoDocumento = p.tipo_documento || 'DNI';
-                                const estadoCivil = p.est_civil ? (p.est_civil.charAt(0).toUpperCase() + p.est_civil.slice(1)) : 'N/A';
-                                // Convertir tipo_gestion (HorarioID numérico) a texto usando el mapa de horarios
-                                const horarioTexto = (window.horariosMap && p.tipo_gestion && window.horariosMap[p.tipo_gestion])
-                                    ? window.horariosMap[p.tipo_gestion]
-                                    : (p.tipo_gestion || 'N/A');
-
-                                content.innerHTML = `
-                                                                                                                                <div class="space-y-6">
-                                                                                                                                    <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
-                                                                                                                                        <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
-                                                                                                                                            <i class="fas fa-id-card mr-2"></i>Información Personal
-                                                                                                                                        </h4>
-                                                                                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NOMBRE COMPLETO</p>
-                                                                                                                                                <p class="text-azul-noche font-medium">${escapeHtml(nombreCompleto)}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE DOCUMENTO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(tipoDocumento)}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE DOCUMENTO</p>
-                                                                                                                                                <p class="text-azul-noche font-mono">${escapeHtml(p.dni || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">FECHA DE NACIMIENTO</p>
-                                                                                                                                                <p class="text-azul-noche">${fechaNac}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">SEXO</p>
-                                                                                                                                                <p class="text-azul-noche">${sexo}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">ESTADO CIVIL</p>
-                                                                                                                                                <p class="text-azul-noche">${estadoCivil}</p>
-                                                                                                                                            </div>
-                                                                                                                                            ${p.nacionalidad ? `
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NACIONALIDAD</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.nacionalidad)}</p>
-                                                                                                                                            </div>
-                                                                                                                                            ` : ''}
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-
-                                                                                                                                    <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
-                                                                                                                                        <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
-                                                                                                                                            <i class="fas fa-map-marker-alt mr-2"></i>Contacto y Ubicación
-                                                                                                                                        </h4>
-                                                                                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DIRECCIÓN</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.direccion || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE CONTACTO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.celular || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE WHATSAPP</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.whatsapp || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">CORREO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.correo || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">PROVINCIA</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.provincia || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DISTRITO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.distrito || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-
-                                                                                                                                    <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
-                                                                                                                                        <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
-                                                                                                                                            <i class="fas fa-briefcase mr-2"></i>Información Laboral
-                                                                                                                                        </h4>
-                                                                                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">EXPERIENCIA CALL CENTER</p>
-                                                                                                                                                <p class="text-azul-noche">${experiencia}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DISCAPACIDAD</p>
-                                                                                                                                                <p class="text-azul-noche">${discapacidad}</p>
-                                                                                                                                            </div>
-                                                                                                                                            ${p.tipo_discapacidad ? `
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE DISCAPACIDAD</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.tipo_discapacidad)}</p>
-                                                                                                                                            </div>
-                                                                                                                                            ` : ''}
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE CONTRATO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.tipo_contrato || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">MODALIDAD DE TRABAJO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(p.modalidad_trabajo || 'N/A')}</p>
-                                                                                                                                            </div>
-                                                                                                                                            <div>
-                                                                                                                                                <p class="text-xs text-azul-noche text-opacity-60 font-semibold">HORARIO</p>
-                                                                                                                                                <p class="text-azul-noche">${escapeHtml(horarioTexto)}</p>
-                                                                                                                                            </div>
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            `;
-                            } catch (err) {
-                                content.innerHTML = `
-                                                                                                                                <div class="text-center py-8">
-                                                                                                                                    <i class="fas fa-exclamation-triangle text-naranja text-2xl mb-2"></i>
-                                                                                                                                    <p class="text-sm text-red-600">${escapeHtml(err.message)}</p>
-                                                                                                                                </div>
-                                                                                                                            `;
-                            }
-                        }
-
-                        // Cerrar modal de detalles del postulante
-                        const cerrarDetallePostulante = document.getElementById('cerrar-modal-detalle-postulante');
-                        if (cerrarDetallePostulante) {
-                            cerrarDetallePostulante.addEventListener('click', function () {
-                                const modal = document.getElementById('modal-detalles-postulante');
-                                if (modal) modal.classList.add('hidden');
-                            });
-                        }
-
-                        // Cerrar modal al hacer click en el backdrop
-                        const modalDetallePostulante = document.getElementById('modal-detalles-postulante');
-                        if (modalDetallePostulante) {
-                            modalDetallePostulante.addEventListener('click', function (ev) {
-                                if (ev.target === modalDetallePostulante) {
-                                    modalDetallePostulante.classList.add('hidden');
-                                }
-                            });
-                        }
-
-                        // ========== MODAL DE DETALLES DE CONVOCATORIA ==========
-                        let currentConvocatoriaId = null;
-                        let diasSeleccionados = [];
-
-                        // Función para formatear fecha a DD/MM/YYYY (sin problemas de zona horaria)
-                        function formatDate(dateString) {
-                            if (!dateString || dateString === 'N/A' || dateString === 'null' || dateString === null) return 'N/A';
-                            try {
-                                // Extraer solo la parte de fecha (YYYY-MM-DD) sin importar el formato
-                                let datePart = '';
-
-                                // Si viene en formato ISO completo (2025-11-15T00:00:00.000000Z)
-                                if (dateString.includes('T')) {
-                                    datePart = dateString.split('T')[0];
-                                }
-                                // Si viene en formato YYYY-MM-DD HH:mm:ss
-                                else if (dateString.includes(' ')) {
-                                    datePart = dateString.split(' ')[0];
-                                }
-                                // Si viene en formato YYYY-MM-DD
-                                else if (dateString.includes('-')) {
-                                    datePart = dateString;
-                                }
-                                // Si ya viene en formato DD/MM/YYYY, devolverlo tal cual
-                                else if (dateString.includes('/')) {
-                                    return dateString;
-                                }
-                                else {
-                                    return dateString;
-                                }
-
-                                // Convertir YYYY-MM-DD a DD/MM/YYYY
-                                if (datePart && datePart.includes('-')) {
-                                    const parts = datePart.split('-');
-                                    if (parts.length === 3) {
-                                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                                    }
-                                }
-
-                                return dateString;
-                            } catch (e) {
-                                console.error('Error formateando fecha:', e, dateString);
-                                return dateString;
-                            }
-                        }
-
-                        // Listener para botón "Detalles"
-                        document.addEventListener('click', function (e) {
-                            const btn = e.target.closest('.detalles-conv-btn');
-                            if (!btn) return;
-
-                            const convId = btn.getAttribute('data-conv-id');
-                            if (convId) {
-                                openDetallesModal(convId);
-                            }
-                        });
-
-                        // Abrir modal de detalles
-                        function openDetallesModal(convocatoriaId) {
-                            currentConvocatoriaId = convocatoriaId;
-                            const modal = document.getElementById('modal-detalles-convocatoria');
-                            const loading = document.getElementById('detalles-loading');
-                            const content = document.getElementById('detalles-content');
-
-                            if (!modal) return;
-
-                            modal.classList.remove('hidden');
-                            loading.classList.remove('hidden');
-                            content.classList.add('hidden');
-
-                            loadDetallesConvocatoria(convocatoriaId);
-                        }
-
-                        // Cerrar modal de detalles
-                        function closeDetallesModal() {
-                            const modal = document.getElementById('modal-detalles-convocatoria');
-                            if (modal) modal.classList.add('hidden');
-                            currentConvocatoriaId = null;
-                            diasSeleccionados = [];
-                            document.getElementById('form-detalles-convocatoria').reset();
-                        }
-
-                        // Cargar detalles de la convocatoria
-                        async function loadDetallesConvocatoria(convocatoriaId) {
-                            try {
-                                const response = await fetch(`/convocatorias/${convocatoriaId}/detalles`);
-                                if (!response.ok) throw new Error('Error al cargar detalles');
-
-                                const data = await response.json();
-                                const loading = document.getElementById('detalles-loading');
-                                const content = document.getElementById('detalles-content');
-
-                                // Llenar campos de solo lectura
-                                document.getElementById('detalle-solicitante').value = data.solicitante || 'N/A';
-                                document.getElementById('detalle-campana').value = data.convocatoria.campana || 'N/A';
-                                document.getElementById('detalle-cargo').value = data.convocatoria.tipo_cargo || 'N/A';
-                                document.getElementById('detalle-vacantes').value = data.convocatoria.requerimiento_personal || 'N/A';
-                                document.getElementById('detalle-experiencia').value = data.convocatoria.experiencia || 'N/A';
-                                document.getElementById('detalle-estado').value = data.convocatoria.estado || 'N/A';
-                                document.getElementById('detalle-fecha-inicio').value = formatDate(data.convocatoria.fecha_inicio_capacitacion);
-                                document.getElementById('detalle-fecha-fin').value = formatDate(data.convocatoria.fecha_fin_capacitacion);
-
-                                // Llenar campos editables si existen detalles
-                                if (data.detalles) {
-                                    document.getElementById('razon_social_interna').value = data.detalles.razon_social_interna || '';
-                                    document.getElementById('jefe_inmediato').value = data.detalles.jefe_inmediato || '';
-                                    document.getElementById('cliente').value = data.detalles.cliente || '';
-                                    document.getElementById('servicio_asociado').value = data.detalles.servicio_asociado || '';
-                                    document.getElementById('centro_costo').value = data.detalles.centro_costo || '';
-                                    document.getElementById('modalidad_trabajo_det').value = data.detalles.modalidad_trabajo || '';
-                                    document.getElementById('lugar_trabajo').value = data.detalles.lugar_trabajo || '';
-                                    document.getElementById('region_presencial').value = data.detalles.region_presencial || '';
-                                    document.getElementById('tipo_contrato_det').value = data.detalles.tipo_contrato || '';
-
-                                    if (data.detalles.dias_laborables && Array.isArray(data.detalles.dias_laborables)) {
-                                        diasSeleccionados = data.detalles.dias_laborables;
-                                        updateDiasText();
-                                    }
-
-                                    if (data.detalles.hora_inicio) {
-                                        document.getElementById('hora_inicio').value = data.detalles.hora_inicio.substring(0, 5);
-                                    }
-                                    if (data.detalles.hora_fin) {
-                                        document.getElementById('hora_fin').value = data.detalles.hora_fin.substring(0, 5);
-                                    }
-
-                                    document.getElementById('remuneracion').value = data.detalles.remuneracion || '';
-                                    document.getElementById('variable').value = data.detalles.variable || '';
-                                    document.getElementById('movilidad').value = data.detalles.movilidad || '';
-                                    document.getElementById('bono_permanencia').value = data.detalles.bono_permanencia || '';
-                                    document.getElementById('tipo_requerimiento').value = data.detalles.tipo_requerimiento || '';
-                                    document.getElementById('motivo_requerimiento').value = data.detalles.motivo_requerimiento || '';
-
-                                    if (data.detalles.fecha_sla) {
-                                        const fechaSla = data.detalles.fecha_sla.includes('T') || data.detalles.fecha_sla.includes(' ')
-                                            ? data.detalles.fecha_sla.split(' ')[0].split('T')[0]
-                                            : data.detalles.fecha_sla;
-                                        document.getElementById('fecha_sla').value = fechaSla;
-                                    }
-                                    if (data.detalles.fecha_objetivo) {
-                                        const fechaObj = data.detalles.fecha_objetivo.includes('T') || data.detalles.fecha_objetivo.includes(' ')
-                                            ? data.detalles.fecha_objetivo.split(' ')[0].split('T')[0]
-                                            : data.detalles.fecha_objetivo;
-                                        document.getElementById('fecha_objetivo').value = fechaObj;
-                                    }
-
-                                    document.getElementById('tipo_proceso').value = data.detalles.tipo_proceso || '';
-                                    document.getElementById('tipo_gestion_det').value = data.detalles.tipo_gestion || '';
-                                }
-
-                                loading.classList.add('hidden');
-                                content.classList.remove('hidden');
-                            } catch (error) {
-                                console.error('Error:', error);
-                                Swal.fire('Error', 'No se pudieron cargar los detalles', 'error');
-                                closeDetallesModal();
-                            }
-                        }
-
-                        // Selector de días laborables con SweetAlert2
-                        const btnSeleccionarDias = document.getElementById('btn-seleccionar-dias');
-                        if (btnSeleccionarDias) {
-                            btnSeleccionarDias.addEventListener('click', function () {
-                                const dias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
-
-                                // Crear HTML con checkboxes
-                                let htmlContent = '<div class="text-left space-y-2">';
-                                dias.forEach(dia => {
-                                    const checked = diasSeleccionados.includes(dia) ? 'checked' : '';
-                                    const diaCapitalizado = dia.charAt(0).toUpperCase() + dia.slice(1);
-                                    htmlContent += `
-                                                                                                                                    <label class="flex items-center cursor-pointer p-2 hover:bg-celeste hover:bg-opacity-30 rounded">
-                                                                                                                                        <input type="checkbox" value="${dia}" class="mr-3 w-4 h-4 text-naranja border-azul-noche rounded focus:ring-naranja" ${checked}>
-                                                                                                                                        <span class="text-azul-noche">${diaCapitalizado}</span>
-                                                                                                                                    </label>
-                                                                                                                                `;
-                                });
-                                htmlContent += '</div>';
-
-                                Swal.fire({
-                                    title: 'Seleccionar Días Laborables',
-                                    html: htmlContent,
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Aceptar',
-                                    cancelButtonText: 'Cancelar',
-                                    confirmButtonColor: '#297373',
-                                    cancelButtonColor: '#011627',
-                                    width: '400px',
-                                    didOpen: () => {
-                                        // No necesitamos hacer nada especial aquí
-                                    },
-                                    preConfirm: () => {
-                                        const checkboxes = Swal.getContainer().querySelectorAll('input[type="checkbox"]:checked');
-                                        const selected = Array.from(checkboxes).map(cb => cb.value);
-                                        if (selected.length === 0) {
-                                            Swal.showValidationMessage('Debes seleccionar al menos un día');
-                                            return false;
-                                        }
-                                        return selected;
-                                    }
-                                }).then((result) => {
-                                    if (result.isConfirmed && result.value) {
-                                        diasSeleccionados = result.value;
-                                        document.getElementById('dias_laborables').value = JSON.stringify(diasSeleccionados);
-                                        updateDiasText();
-                                    }
-                                });
-                            });
-                        }
-
-                        function updateDiasText() {
-                            const textEl = document.getElementById('dias-seleccionados-text');
-                            if (diasSeleccionados.length > 0) {
-                                textEl.textContent = diasSeleccionados.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
                             } else {
-                                textEl.textContent = 'Seleccionar días';
+                                container.classList.add('hidden');
+                                emptyMsg.classList.remove('hidden');
                             }
+                        })
+                        .catch(() => {
+                            container.classList.add('hidden');
+                            emptyMsg.classList.remove('hidden');
+                        });
+                }
+
+                function limpiarFiltros() {
+                    filtros.campana.value = '';
+                    filtros.cargo.value = '';
+                    filtros.estado.value = '';
+                    filtros.fechaInicio.value = '';
+                    filtros.fechaFin.value = '';
+                    filtros.reclutador.value = '';
+                    container.innerHTML = '';
+                    container.classList.add('hidden');
+                    emptyMsg.classList.add('hidden');
+                }
+
+                if (btnAplicar) btnAplicar.addEventListener('click', aplicarFiltros);
+                if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
+
+                // Escuchar evento de creación de convocatoria para refrescar la lista sin recargar
+                window.addEventListener('convocatoria:created', function () {
+                    aplicarFiltros();
+                });
+
+                // Las convocatorias solo se cargan cuando se aplican los filtros
+
+                // Aquí puedes agregar los listeners para los botones de eliminar y asignar reclutadores después de renderizar
+                // (puedes usar event delegation si lo prefieres)
+                // Listener global para botones 'Insertar Postulante' generados dinámicamente
+                document.addEventListener('click', function (e) {
+                    const btn = e.target.closest && e.target.closest('.insertar-postulante-btn');
+                    if (!btn) return;
+                    const convId = btn.getAttribute('data-conv-id');
+                    const convName = btn.getAttribute('data-conv-name');
+                    const convTitle = btn.getAttribute('data-conv-title') || convName || '';
+
+                    // Abrir modal y pasar datos
+                    openPostulanteModal(convId, convTitle);
+                });
+
+                // Delegación para botones de eliminar y asignar reclutadores
+                document.addEventListener('click', function (e) {
+                    const delBtn = e.target.closest && e.target.closest('.swal-delete-btn');
+                    if (delBtn) {
+                        e.preventDefault();
+                        const form = delBtn.closest('.delete-conv-form');
+                        if (!form) return;
+                        const formData = new FormData(form);
+                        const url = form.getAttribute('action');
+
+                        Swal.fire({
+                            title: '¿Eliminar convocatoria?',
+                            text: 'Esta acción no se puede deshacer.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Sí, eliminar',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                        'X-HTTP-Method-Override': 'DELETE'
+                                    },
+                                    body: formData
+                                })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: '¡Eliminada!',
+                                            text: 'La convocatoria ha sido eliminada exitosamente.',
+                                            showConfirmButton: false,
+                                            timer: 2000,
+                                            toast: true,
+                                            position: 'top-end'
+                                        }).then(() => { location.reload(); });
+                                    })
+                                    .catch(error => {
+                                        Swal.fire('Error', 'No se pudo eliminar la convocatoria', 'error');
+                                        console.error(error);
+                                    });
+                            }
+                        });
+                        return;
+                    }
+
+                    const assignBtn = e.target.closest && e.target.closest('.swal-assign-btn');
+                    if (assignBtn) {
+                        e.preventDefault();
+                        const convID = assignBtn.getAttribute('data-conv-id');
+                        const convName = assignBtn.getAttribute('data-conv-name');
+                        const reclutadoresDisp = {!! json_encode($reclutadores_disponibles) !!};
+
+                        // Obtener reclutadores asignados desde el atributo data
+                        let currentReclutadoresRaw = assignBtn.getAttribute('data-reclutadores');
+                        let currentReclutadores = [];
+
+                        try {
+                            if (currentReclutadoresRaw) {
+                                currentReclutadores = JSON.parse(currentReclutadoresRaw);
+                            }
+                        } catch (err) {
+                            console.error('Error parsing reclutadores:', err);
+                            currentReclutadores = [];
                         }
 
-                        
-                        const btnGuardar = document.getElementById('btn-guardar-detalles-v2');
-                        if(btnGuardar) {
-                            btnGuardar.addEventListener('click', async function () {
-                            const form = document.getElementById('form-detalles-convocatoria');
-                            const formData = new FormData(form);
+                        // Convertir todos a strings para comparación simple
+                        currentReclutadores = currentReclutadores.map(v => String(v));
 
-                            // Agregar días laborables (usar set para sobrescribir el input hidden vacío)
-                            formData.set('dias_laborables', JSON.stringify(diasSeleccionados));
+                        // Crear opciones para Select2
+                        let options = '';
+                        for (let id in reclutadoresDisp) {
+                            const idStr = String(id);
+                            const selected = currentReclutadores.includes(idStr) ? 'selected' : '';
+                            options += `<option value="${id}" ${selected}>${reclutadoresDisp[id]}</option>`;
+                        }
 
-                            const payload = {};
-                            formData.forEach((value, key) => {
-                                if (key === 'dias_laborables') {
-                                    try {
-                                        payload[key] = value ? JSON.parse(value) : [];
-                                    } catch (e) {
-                                        console.warn('Error parsing dias_laborables:', e);
-                                        payload[key] = [];
-                                    }
+                        Swal.fire({
+                            title: `Asignar Reclutadores`,
+                            html: `
+                                                                                                                                                                                                                            <div class="text-left">
+                                                                                                                                                                                                                                <p class="mb-4 text-sm text-gray-600"><strong>Convocatoria:</strong> ${convName}</p>
+                                                                                                                                                                                                                                <select id="swal-reclutadores-select" class="w-full" multiple="multiple">
+                                                                                                                                                                                                                                    ${options}
+                                                                                                                                                                                                                                </select>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                        `,
+                            showCancelButton: true,
+                            confirmButtonText: 'Guardar',
+                            cancelButtonText: 'Cancelar',
+                            didOpen: () => {
+                                // Inicializar Select2 después de que el HTML se renderize
+                                if (window.jQuery && $.fn.select2) {
+                                    const $sel = $('#swal-reclutadores-select');
+                                    $sel.select2({
+                                        dropdownParent: $('.swal2-container'),
+                                        placeholder: 'Selecciona reclutadores',
+                                        allowClear: true,
+                                        width: '100%'
+                                    });
+                                    // Forzar valores seleccionados (asegura compatibilidad)
+                                    $sel.val(currentReclutadores).trigger('change');
                                 } else {
-                                    payload[key] = value || null;
+                                    // Si no hay select2, nada más: los <option selected> ya marcan selección nativa
                                 }
-                            });
-
-                            console.log('Enviando datos al servidor:', payload);
-
-                            Swal.fire({
-                                title: 'Guardando...',
-                                allowOutsideClick: false,
-                                didOpen: () => { Swal.showLoading(); }
-                            });
-
-                            try {
-                                const response = await fetch(`/convocatorias/${currentConvocatoriaId}/detalles`, {
+                            },
+                            preConfirm: () => {
+                                const selected = window.jQuery && $.fn.select2 ? $('#swal-reclutadores-select').val() || [] : Array.from(document.getElementById('swal-reclutadores-select').selectedOptions).map(o => o.value);
+                                return selected;
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const selectedReclutadores = result.value;
+                                fetch(`/convocatorias/${convID}/assign-reclutadores`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                                     },
-                                    body: JSON.stringify(payload)
-                                });
-
-                                console.log('Respuesta del servidor - Status:', response.status);
-
-                                // Verificar si la respuesta es JSON válido
-                                const contentType = response.headers.get('content-type');
-                                if (!contentType || !contentType.includes('application/json')) {
-                                    console.error('Respuesta no es JSON:', contentType);
-                                    const text = await response.text();
-                                    console.error('Contenido de la respuesta:', text);
-                                    throw new Error('El servidor no devolvió una respuesta JSON válida');
-                                }
-
-                                const data = await response.json();
-                                console.log('Datos recibidos:', data);
-
-                                if (response.ok && data.success) {
-                                    Swal.fire('Éxito', data.message || 'Detalles guardados correctamente', 'success');
-                                } else if (response.status === 422) {
-                                    // Error de validación
-                                    let errorMsg = 'Error de validación:\n';
-                                    if (data.errors) {
-                                        for (const [field, messages] of Object.entries(data.errors)) {
-                                            errorMsg += `\n${field}: ${messages.join(', ')}`;
-                                        }
-                                    }
-                                    Swal.fire('Error de Validación', errorMsg, 'error');
-                                } else {
-                                    Swal.fire('Error', data.error || data.message || 'No se pudieron guardar los detalles', 'error');
-                                }
-                            } catch (error) {
-                                console.error('Error completo:', error);
-                                Swal.fire('Error', 'Error al guardar los detalles: ' + error.message, 'error');
+                                    body: JSON.stringify({ reclutadores: selectedReclutadores })
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        Swal.fire('Éxito', 'Reclutadores asignados correctamente', 'success')
+                                            .then(() => {
+                                                // Actualizar la lista manteniendo filtros en lugar de recargar
+                                                aplicarFiltros();
+                                            });
+                                    })
+                                    .catch(error => {
+                                        Swal.fire('Error', 'No se pudo asignar reclutadores', 'error');
+                                    });
                             }
                         });
-                        }
 
-                        // Botones cerrar
-                        document.getElementById('cerrar-modal-detalles').addEventListener('click', closeDetallesModal);
-                        document.getElementById('btn-cerrar-detalles').addEventListener('click', closeDetallesModal);
+                        return;
+                    }
+                });
 
-                        // Cerrar al hacer click fuera del modal
-                        document.getElementById('modal-detalles-convocatoria').addEventListener('click', function (ev) {
-                            if (ev.target === this) closeDetallesModal();
-                        });
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return String(str)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                }
+
+                function openPostulanteModal(convocatoriaId, convocatoriaTitle) {
+                    const modal = document.getElementById('modal-insertar-postulante');
+                    if (!modal) return;
+                    // Set convocatoria-id hidden input inside partial if present
+                    const hidden = modal.querySelector('#convocatoria-id');
+                    if (hidden) hidden.value = convocatoriaId;
+                    const hiddenImportar = modal.querySelector('#convocatoria-id-importar');
+                    if (hiddenImportar) hiddenImportar.value = convocatoriaId;
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    // Activate Postulantes tab by default
+                    activateTab('postulantes');
+                    // Load postulantes for this convocatoria
+                    loadModalPostulantes(convocatoriaId);
+                    // Emitir evento para que el partial de importación sepa el convocatoria_id
+                    window.dispatchEvent(new CustomEvent('postulante:modal-opened', {
+                        detail: { convocatoria_id: convocatoriaId }
+                    }));
+                }
+
+                function closePostulanteModal() {
+                    const modal = document.getElementById('modal-insertar-postulante');
+                    if (modal) modal.classList.add('hidden');
+                }
+
+                // Botón cerrar
+                const cerrarBtn = document.getElementById('cerrar-modal-postulante');
+                if (cerrarBtn) cerrarBtn.addEventListener('click', function () { closePostulanteModal(); });
+
+                // Cerrar modal al hacer click en el backdrop (fuera del panel)
+                const modalOverlay = document.getElementById('modal-insertar-postulante');
+                if (modalOverlay) {
+                    modalOverlay.addEventListener('click', function (ev) {
+                        // Si el click es sobre el overlay (no dentro del contenido), cerramos
+                        if (ev.target === modalOverlay) closePostulanteModal();
                     });
-                </script>
+                }
+
+                // Tabs
+                const tabPost = document.getElementById('tab-postulantes');
+                const tabIns = document.getElementById('tab-insertar');
+                const tabImp = document.getElementById('tab-importar');
+                if (tabPost) tabPost.addEventListener('click', function () { activateTab('postulantes'); });
+                if (tabIns) tabIns.addEventListener('click', function () { activateTab('insertar'); });
+                if (tabImp) tabImp.addEventListener('click', function () { activateTab('importar'); });
+
+                function activateTab(name) {
+                    const tabP = document.getElementById('tab-panel-postulantes');
+                    const tabI = document.getElementById('tab-panel-insertar');
+                    const tabImp = document.getElementById('tab-panel-importar');
+                    const tPost = document.getElementById('tab-postulantes');
+                    const tIns = document.getElementById('tab-insertar');
+                    const tImp = document.getElementById('tab-importar');
+                    if (!tabP || !tabI || !tabImp || !tPost || !tIns || !tImp) return;
+
+                    // Ocultar todos los paneles
+                    tabP.classList.add('hidden');
+                    tabI.classList.add('hidden');
+                    tabImp.classList.add('hidden');
+
+                    // Resetear estilos de todas las pestañas
+                    [tPost, tIns, tImp].forEach(tab => {
+                        tab.classList.remove('border-naranja', 'text-azul-noche', 'bg-white');
+                        tab.classList.add('border-transparent', 'text-azul-noche', 'text-opacity-60');
+                    });
+
+                    // Activar la pestaña seleccionada
+                    if (name === 'postulantes') {
+                        tabP.classList.remove('hidden');
+                        tPost.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
+                        tPost.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
+                    } else if (name === 'insertar') {
+                        tabI.classList.remove('hidden');
+                        tIns.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
+                        tIns.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
+                    } else if (name === 'importar') {
+                        tabImp.classList.remove('hidden');
+                        tImp.classList.add('border-naranja', 'text-azul-noche', 'bg-white');
+                        tImp.classList.remove('border-transparent', 'text-azul-noche', 'text-opacity-60');
+                    }
+                }
+
+                async function loadModalPostulantes(convocatoriaId) {
+                    const listEl = document.getElementById('modal-postulantes-list');
+                    if (!listEl) return;
+                    listEl.innerHTML = '<p class="text-sm text-gray-600">Cargando postulantes...</p>';
+                    try {
+                        const res = await fetch(`/convocatorias/${convocatoriaId}/postulantes`);
+                        if (!res.ok) throw new Error('Error al cargar postulantes');
+                        const data = await res.json();
+                        const postulantes = Array.isArray(data) ? data : (data.data || []);
+                        const yaCapacitados = data.ya_capacitados || false;
+
+                        if (!Array.isArray(postulantes) || postulantes.length === 0) {
+                            listEl.innerHTML = '<p class="text-sm text-gray-600">No hay postulantes para esta convocatoria.</p>';
+                            return;
+                        }
+                        const rows = postulantes.map(p => {
+                            const nombre = [p.nombres, p.ap_pat, p.ap_mat].filter(Boolean).join(' ') || (p.nombre_completo || 'Sin nombre');
+                            // Formatear tipo de documento y número
+                            const tipoDoc = p.tipo_documento || 'DNI';
+                            const numDoc = p.dni || 'Sin registro';
+                            const documentoCompleto = tipoDoc === 'Carnet de Extranjería'
+                                ? `<span class="inline-flex items-center px-2 py-0.5 rounded bg-naranja bg-opacity-20 text-naranja text-xs font-medium mr-1">CE</span>${escapeHtml(numDoc)}`
+                                : `<span class="inline-flex items-center px-2 py-0.5 rounded bg-azul-noche bg-opacity-20 text-azul-noche text-xs font-medium mr-1">DNI</span>${escapeHtml(numDoc)}`;
+
+                            return `
+                                                                                                                                                                                                                            <tr class="border-b border-celeste border-opacity-40">
+                                                                                                                                                                                                                                <td class="px-4 py-2 font-medium text-azul-noche">${escapeHtml(nombre)}</td>
+                                                                                                                                                                                                                                <td class="px-4 py-2 text-azul-noche text-opacity-80 font-mono">${documentoCompleto}</td>
+                                                                                                                                                                                                                                <td class="px-4 py-2 text-right">
+                                                                                                                                                                                                                                    <button type="button" class="detalle-postulante-btn inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold text-white bg-azul-noche rounded-full hover:bg-azul-noche/80 transition" data-postulante-id="${p.id || ''}" data-postulante-dni="${p.dni || ''}">
+                                                                                                                                                                                                                                        <i class="fas fa-eye text-xs"></i> Ver detalle
+                                                                                                                                                                                                                                    </button>
+                                                                                                                                                                                                                                </td>
+                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                        `;
+                        }).join('');
+
+                        // Renderizar botón según estado de capacitación
+                                      const botonCapacitar = yaCapacitados
+                                            ? `<button type="button" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gray-400 rounded-lg cursor-not-allowed" disabled>
+                                                                                   <i class="fas fa-check-circle"></i> Ya Capacitados
+                                                                               </button>`
+                                            : `<button type="button" id="btn-capacitar-todos" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-verde rounded-lg hover:bg-verde/90 transition shadow-md hover:shadow-lg" data-convocatoria-id="${convocatoriaId}">
+                                                                                   <i class="fas fa-graduation-cap"></i> Capacitar Todos (${postulantes.length})
+                                                                               </button>`;
+
+                                        listEl.innerHTML = `
+                                                                                                                                                                                                                        <div class="space-y-3">
+                                                                                                                                                                                                                            <div class="flex items-center justify-between">
+                                                                                                                                                                                                                                <div class="text-sm text-azul-noche text-opacity-70 font-medium">Postulantes registrados: ${postulantes.length}</div>
+                                                                                                                                                                                                                                ${botonCapacitar}
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                            <div class="overflow-x-auto rounded-xl border border-celeste border-opacity-40 shadow-sm">
+                                                                                                                                                                                                                                <table class="min-w-full text-sm text-left text-azul-noche">
+                                                                                                                                                                                                                                    <thead class="bg-celeste bg-opacity-50 text-azul-noche font-semibold">
+                                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                                            <th class="px-4 py-3">Nombre completo</th>
+                                                                                                                                                                                                                                            <th class="px-4 py-3">Documento</th>
+                                                                                                                                                                                                                                            <th class="px-4 py-3 text-right">Acciones</th>
+                                                                                                                                                                                                                                        </tr>
+                                                >
+                                                                                                                                                                                                                                    </thead>
+                                                                                                                                                                                                                                    <tbody class="bg-white">
+                                                                                                                                                                                                                                        ${rows}
+                                                                                                                                                                                                                                    </tbody>
+                                                                                                                                                                                                                                </table>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    `;
+                                    } catch (err) {
+                                        listEl.innerHTML = `<p class="text-sm text-red-600">${escapeHtml(err.message)}</p>`;
+                                    }
+                                }
+
+                                // Escuchar evento disparado por el partial tras guardar
+                                window.addEventListener('postulante:created', function (ev) {
+                                    const convId = ev.detail && ev.detail.convocatoria_id;
+                                    if (convId) {
+                                        const modal = document.getElementById('modal-insertar-postulante');
+                                        if (modal && !modal.classList.contains('hidden')) {
+                                            loadModalPostulantes(convId);
+                                            activateTab('postulantes');
+                                        }
+                                    }
+                                });
+
+                                // Listener para botones de detalles del postulante (event delegation)
+                                document.addEventListener('click', function (e) {
+                                    const btn = e.target.closest('.detalle-postulante-btn');
+                                    if (!btn) return;
+                                    const postulanteId = btn.getAttribute('data-postulante-id');
+                                    if (postulanteId) {
+                                        loadDetallePostulante(postulanteId);
+                                    }
+                                });
+
+                                // Listener para botón de capacitar todos los postulantes (event delegation)
+                                document.addEventListener('click', async function (e) {
+                                    const btn = e.target.closest('#btn-capacitar-todos');
+                                    if (!btn) return;
+
+                                    const convocatoriaId = btn.getAttribute('data-convocatoria-id');
+                                    if (!convocatoriaId) return;
+
+                                    // Confirmar con SweetAlert
+                                    const result = await Swal.fire({
+                                        title: '¿Capacitar todos los postulantes?',
+                                        html: 'Se transferirán <strong>todos los postulantes</strong> de esta convocatoria a capacitación.',
+                                        icon: 'question',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#10b981',
+                                        cancelButtonColor: '#6b7280',
+                                        confirmButtonText: 'Sí, capacitar todos',
+                                        cancelButtonText: 'Cancelar'
+                                    });
+
+                                    if (!result.isConfirmed) return;
+
+                                    // Mostrar loading
+                                    Swal.fire({
+                                        title: 'Procesando...',
+                                        text: 'Transfiriendo postulantes a capacitación',
+                                        allowOutsideClick: false,
+                                        didOpen: () => {
+                                            Swal.showLoading();
+                                        }
+                                    });
+
+                                    try {
+                                        const res = await fetch(`/convocatorias/${convocatoriaId}/capacitar`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                            }
+                                        });
+
+                                        const data = await res.json();
+
+                                        if (data.success) {
+                                            let mensaje = `<strong>Transferidos:</strong> ${data.transferidos}<br>`;
+                                            if (data.ya_existentes > 0) {
+                                                mensaje += `<strong>Ya en capacitación:</strong> ${data.ya_existentes}<br>`;
+                                            }
+                                            if (data.errores && data.errores.length > 0) {
+                                                mensaje += `<strong>Errores:</strong> ${data.errores.length}`;
+                                            }
+
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: '¡Transferencia completada!',
+                                                html: mensaje,
+                                                confirmButtonColor: '#10b981'
+                                            });
+
+                                            // Deshabilitar el botón
+                                            btn.disabled = true;
+                                            btn.classList.add('opacity-50', 'cursor-not-allowed');
+                                            btn.innerHTML = '<i class="fas fa-check"></i> Todos Capacitados';
+                                        } else {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error',
+                                                text: data.error || 'No se pudo transferir los postulantes',
+                                                confirmButtonColor: '#ef4444'
+                                            });
+                                        }
+                                    } catch (err) {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: 'Error de conexión: ' + err.message,
+                                            confirmButtonColor: '#ef4444'
+                                        });
+                                    }
+                                });
+
+                                // Función para cargar y mostrar detalles del postulante
+                                async function loadDetallePostulante(postulanteId) {
+                                    const modal = document.getElementById('modal-detalles-postulante');
+                                    const content = document.getElementById('detalle-postulante-content');
+                                    if (!modal || !content) return;
+
+                                    modal.classList.remove('hidden');
+                                    content.innerHTML = `
+                                                                                                                                                                                                                    <div class="flex items-center justify-center py-8">
+                                                                                                                                                                                                                        <div class="text-center">
+                                                                                                                                                                                                                            <i class="fas fa-spinner fa-spin text-naranja text-2xl mb-2"></i>
+                                                                                                                                                                                                                            <p class="text-sm text-gray-600">Cargando detalles...</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                `;
+
+                                    try {
+                                        const res = await fetch(`/postulantes/${postulanteId}`);
+                                        if (!res.ok) throw new Error('Error al cargar detalles');
+                                        const data = await res.json();
+                                        if (!data.success || !data.data) {
+                                            throw new Error('No se encontraron datos');
+                                        }
+
+                                        const p = data.data;
+                                        const nombreCompleto = [p.nombres, p.ap_pat, p.ap_mat].filter(Boolean).join(' ') || 'Sin nombre';
+                                        const fechaNac = p.fecha_nac ? formatDate(p.fecha_nac) : 'N/A';
+                                        const sexo = p.sexo === '1' ? 'Masculino' : (p.sexo === '2' ? 'Femenino' : 'No especificado');
+                                        const experiencia = p.experiencia_callcenter === 'si' ? 'Sí' : 'No';
+                                        const discapacidad = p.discapacidad === 'si' ? 'Sí' : 'No';
+                                        const tipoDocumento = p.tipo_documento || 'DNI';
+                                        const estadoCivil = p.est_civil ? (p.est_civil.charAt(0).toUpperCase() + p.est_civil.slice(1)) : 'N/A';
+                                        // Convertir tipo_gestion (HorarioID numérico) a texto usando el mapa de horarios
+                                        const horarioTexto = (window.horariosMap && p.tipo_gestion && window.horariosMap[p.tipo_gestion])
+                                            ? window.horariosMap[p.tipo_gestion]
+                                            : (p.tipo_gestion || 'N/A');
+
+                                        content.innerHTML = `
+                                                                                                                                                                                                                        <div class="space-y-6">
+                                                                                                                                                                                                                            <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
+                                                                                                                                                                                                                                <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
+                                                                                                                                                                                                                                    <i class="fas fa-id-card mr-2"></i>Información Personal
+                                                                                                                                                                                                                                </h4>
+                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NOMBRE COMPLETO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche font-medium">${escapeHtml(nombreCompleto)}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE DOCUMENTO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(tipoDocumento)}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE DOCUMENTO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche font-mono">${escapeHtml(p.dni || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">FECHA DE NACIMIENTO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${fechaNac}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">SEXO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${sexo}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">ESTADO CIVIL</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${estadoCivil}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    ${p.nacionalidad ? `
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NACIONALIDAD</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.nacionalidad)}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                            <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
+                                                                                                                                                                                                                                <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
+                                                                                                                                                                                                                                    <i class="fas fa-map-marker-alt mr-2"></i>Contacto y Ubicación
+                                                                                                                                                                                                                                </h4>
+                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DIRECCIÓN</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.direccion || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE CONTACTO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.celular || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">NÚMERO DE WHATSAPP</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.whatsapp || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">CORREO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.correo || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">PROVINCIA</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.provincia || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DISTRITO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.distrito || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                            <div class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
+                                                                                                                                                                                                                                <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
+                                                                                                                                                                                                                                    <i class="fas fa-briefcase mr-2"></i>Información Laboral
+                                                                                                                                                                                                                                </h4>
+                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">EXPERIENCIA CALL CENTER</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${experiencia}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">DISCAPACIDAD</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${discapacidad}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    ${p.tipo_discapacidad ? `
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE DISCAPACIDAD</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.tipo_discapacidad)}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">TIPO DE CONTRATO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.tipo_contrato || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">MODALIDAD DE TRABAJO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(p.modalidad_trabajo || 'N/A')}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                        <p class="text-xs text-azul-noche text-opacity-60 font-semibold">HORARIO</p>
+                                                                                                                                                                                                                                        <p class="text-azul-noche">${escapeHtml(horarioTexto)}</p>
+                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                            </div>
+
+                                                                                                                                                                                                                            <!-- Historial de Capacitaciones -->
+                                                                                                                                                                                                                            <div id="historial-capacitacion-container" class="bg-celeste bg-opacity-30 p-4 rounded-lg border border-azul-noche border-opacity-20">
+                                                                                                                                                                                                                                <h4 class="text-lg font-bold text-azul-noche mb-3 flex items-center">
+                                                                                                                                                                                                                                    <i class="fas fa-history mr-2"></i>Historial de Capacitaciones
+                                                                                                                                                                                                                                </h4>
+                                                                                                                                                                                                                                <div id="historial-capacitacion-content">
+                                                                                                                                                                                                                                    <p class="text-sm text-gray-600">Cargando historial...</p>
+                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    `;
+
+                                        // Cargar historial de capacitaciones
+                                        loadHistorialCapacitacion(p.dni);
+
+                                    } catch (err) {
+                                        content.innerHTML = `
+                                                                                                                                                                                                                        <div class="text-center py-8">
+                                                                                                                                                                                                                            <i class="fas fa-exclamation-triangle text-naranja text-2xl mb-2"></i>
+                                                                                                                                                                                                                            <p class="text-sm text-red-600">${escapeHtml(err.message)}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    `;
+                                    }
+                                }
+
+                                // Función para cargar historial de capacitaciones
+                                async function loadHistorialCapacitacion(dni) {
+                                    const container = document.getElementById('historial-capacitacion-content');
+                                    if (!container) return;
+
+                                    try {
+                                        const res = await fetch(`/postulantes/${dni}/historial`);
+                                        if (!res.ok) throw new Error('Error al cargar historial');
+                                        const data = await res.json();
+
+                                        if (!data.success || !data.data || data.data.length === 0) {
+                                            container.innerHTML = '<p class="text-sm text-gray-600">No hay historial de capacitaciones para este postulante.</p>';
+                                            return;
+                                        }
+
+                                        const historial = data.data;
+                                        const rows = historial.map(h => {
+                                            const fechaInicio = h.FechaInicio ? formatDate(h.FechaInicio) : 'N/A';
+                                            return `
+                                                                <tr class="border-b border-celeste border-opacity-40">
+                                                                    <td class="px-3 py-2 text-azul-noche">${escapeHtml(h.NombreCampana || 'N/A')}</td>
+                                                                    <td class="px-3 py-2 text-azul-noche">${escapeHtml(h.NombreCapacitador || 'N/A')}</td>
+                                                                    <td class="px-3 py-2 text-azul-noche">${escapeHtml(h.EstadoPostulante || 'N/A')}</td>
+                                                                    <td class="px-3 py-2 text-azul-noche">${fechaInicio}</td>
+                                                                    <td class="px-3 py-2 text-azul-noche">${escapeHtml(h.Modalidad || 'N/A')}</td>
+                                                                </tr>
+                                                            `;
+                                        }).join('');
+
+                                        container.innerHTML = `
+                                                            <div class="overflow-x-auto rounded-lg border border-celeste border-opacity-40">
+                                                                <table class="min-w-full text-sm text-left text-azul-noche">
+                                                                    <thead class="bg-celeste bg-opacity-50 text-azul-noche font-semibold">
+                                                                        <tr>
+                                                                            <th class="px-3 py-2">Campaña</th>
+                                                                            <th class="px-3 py-2">Capacitador</th>
+                                                                            <th class="px-3 py-2">Estado</th>
+                                                                            <th class="px-3 py-2">Fecha Inicio</th>
+                                                                            <th class="px-3 py-2">Modalidad</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody class="bg-white">
+                                                                        ${rows}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        `;
+                                    } catch (err) {
+                                        container.innerHTML = `<p class="text-sm text-red-600">Error al cargar historial: ${escapeHtml(err.message)}</p>`;
+                                    }
+                                }
+
+                                // Cerrar modal de detalles del postulante
+                                const cerrarDetallePostulante = document.getElementById('cerrar-modal-detalle-postulante');
+                                if (cerrarDetallePostulante) {
+                                    cerrarDetallePostulante.addEventListener('click', function () {
+                                        const modal = document.getElementById('modal-detalles-postulante');
+                                        if (modal) modal.classList.add('hidden');
+                                    });
+                                }
+
+                                // Cerrar modal al hacer click en el backdrop
+                                const modalDetallePostulante = document.getElementById('modal-detalles-postulante');
+                                if (modalDetallePostulante) {
+                                    modalDetallePostulante.addEventListener('click', function (ev) {
+                                        if (ev.target === modalDetallePostulante) {
+                                            modalDetallePostulante.classList.add('hidden');
+                                        }
+                                    });
+                                }
+
+                                // ========== MODAL DE DETALLES DE CONVOCATORIA ==========
+                                let currentConvocatoriaId = null;
+                                let diasSeleccionados = [];
+
+                                // Función para formatear fecha a DD/MM/YYYY (sin problemas de zona horaria)
+                                function formatDate(dateString) {
+                                    if (!dateString || dateString === 'N/A' || dateString === 'null' || dateString === null) return 'N/A';
+                                    try {
+                                        // Extraer solo la parte de fecha (YYYY-MM-DD) sin importar el formato
+                                        let datePart = '';
+
+                                        // Si viene en formato ISO completo (2025-11-15T00:00:00.000000Z)
+                                        if (dateString.includes('T')) {
+                                            datePart = dateString.split('T')[0];
+                                        }
+                                        // Si viene en formato YYYY-MM-DD HH:mm:ss
+                                        else if (dateString.includes(' ')) {
+                                            datePart = dateString.split(' ')[0];
+                                        }
+                                        // Si viene en formato YYYY-MM-DD
+                                        else if (dateString.includes('-')) {
+                                            datePart = dateString;
+                                        }
+                                        // Si ya viene en formato DD/MM/YYYY, devolverlo tal cual
+                                        else if (dateString.includes('/')) {
+                                            return dateString;
+                                        }
+                                        else {
+                                            return dateString;
+                                        }
+
+                                        // Convertir YYYY-MM-DD a DD/MM/YYYY
+                                        if (datePart && datePart.includes('-')) {
+                                            const parts = datePart.split('-');
+                                            if (parts.length === 3) {
+                                                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                                            }
+                                        }
+
+                                        return dateString;
+                                    } catch (e) {
+                                        console.error('Error formateando fecha:', e, dateString);
+                                        return dateString;
+                                    }
+                                }
+
+                                // Listener para botón "Detalles"
+                                document.addEventListener('click', function (e) {
+                                    const btn = e.target.closest('.detalles-conv-btn');
+                                    if (!btn) return;
+
+                                    const convId = btn.getAttribute('data-conv-id');
+                                    if (convId) {
+                                        openDetallesModal(convId);
+                                    }
+                                });
+
+                                // Abrir modal de detalles
+                                function openDetallesModal(convocatoriaId) {
+                                    currentConvocatoriaId = convocatoriaId;
+                                    const modal = document.getElementById('modal-detalles-convocatoria');
+                                    const loading = document.getElementById('detalles-loading');
+                                    const content = document.getElementById('detalles-content');
+
+                                    if (!modal) return;
+
+                                    modal.classList.remove('hidden');
+                                    loading.classList.remove('hidden');
+                                    content.classList.add('hidden');
+
+                                    loadDetallesConvocatoria(convocatoriaId);
+                                }
+
+                                // Cerrar modal de detalles
+                                function closeDetallesModal() {
+                                    const modal = document.getElementById('modal-detalles-convocatoria');
+                                    if (modal) modal.classList.add('hidden');
+                                    currentConvocatoriaId = null;
+                                    diasSeleccionados = [];
+                                    document.getElementById('form-detalles-convocatoria').reset();
+                                }
+
+                                // Cargar detalles de la convocatoria
+                                async function loadDetallesConvocatoria(convocatoriaId) {
+                                    try {
+                                        const response = await fetch(`/convocatorias/${convocatoriaId}/detalles`);
+                                        if (!response.ok) throw new Error('Error al cargar detalles');
+
+                                        const data = await response.json();
+                                        const loading = document.getElementById('detalles-loading');
+                                        const content = document.getElementById('detalles-content');
+
+                                        // Llenar campos de solo lectura
+                                        document.getElementById('detalle-solicitante').value = data.solicitante || 'N/A';
+                                        document.getElementById('detalle-campana').value = data.convocatoria.campana || 'N/A';
+                                        document.getElementById('detalle-cargo').value = data.convocatoria.tipo_cargo || 'N/A';
+                                        document.getElementById('detalle-vacantes').value = data.convocatoria.requerimiento_personal || 'N/A';
+                                        document.getElementById('detalle-experiencia').value = data.convocatoria.experiencia || 'N/A';
+                                        document.getElementById('detalle-estado').value = data.convocatoria.estado || 'N/A';
+                                        document.getElementById('detalle-fecha-inicio').value = formatDate(data.convocatoria.fecha_inicio_capacitacion);
+                                        document.getElementById('detalle-fecha-fin').value = formatDate(data.convocatoria.fecha_fin_capacitacion);
+
+                                        // Llenar campos editables si existen detalles
+                                        if (data.detalles) {
+                                            document.getElementById('razon_social_interna').value = data.detalles.razon_social_interna || '';
+                                            document.getElementById('jefe_inmediato').value = data.detalles.jefe_inmediato || '';
+                                            document.getElementById('cliente').value = data.detalles.cliente || '';
+                                            document.getElementById('servicio_asociado').value = data.detalles.servicio_asociado || '';
+                                            document.getElementById('centro_costo').value = data.detalles.centro_costo || '';
+                                            document.getElementById('modalidad_trabajo_det').value = data.detalles.modalidad_trabajo || '';
+                                            document.getElementById('lugar_trabajo').value = data.detalles.lugar_trabajo || '';
+                                            document.getElementById('region_presencial').value = data.detalles.region_presencial || '';
+                                            document.getElementById('tipo_contrato_det').value = data.detalles.tipo_contrato || '';
+
+                                            if (data.detalles.dias_laborables && Array.isArray(data.detalles.dias_laborables)) {
+                                                diasSeleccionados = data.detalles.dias_laborables;
+                                                updateDiasText();
+                                            }
+
+                                            if (data.detalles.hora_inicio) {
+                                                document.getElementById('hora_inicio').value = data.detalles.hora_inicio.substring(0, 5);
+                                            }
+                                            if (data.detalles.hora_fin) {
+                                                document.getElementById('hora_fin').value = data.detalles.hora_fin.substring(0, 5);
+                                            }
+
+                                            document.getElementById('remuneracion').value = data.detalles.remuneracion || '';
+                                            document.getElementById('variable').value = data.detalles.variable || '';
+                                            document.getElementById('movilidad').value = data.detalles.movilidad || '';
+                                            document.getElementById('bono_permanencia').value = data.detalles.bono_permanencia || '';
+                                            document.getElementById('tipo_requerimiento').value = data.detalles.tipo_requerimiento || '';
+                                            document.getElementById('motivo_requerimiento').value = data.detalles.motivo_requerimiento || '';
+
+                                            if (data.detalles.fecha_sla) {
+                                                const fechaSla = data.detalles.fecha_sla.includes('T') || data.detalles.fecha_sla.includes(' ')
+                                                    ? data.detalles.fecha_sla.split(' ')[0].split('T')[0]
+                                                    : data.detalles.fecha_sla;
+                                                document.getElementById('fecha_sla').value = fechaSla;
+                                            }
+                                            if (data.detalles.fecha_objetivo) {
+                                                const fechaObj = data.detalles.fecha_objetivo.includes('T') || data.detalles.fecha_objetivo.includes(' ')
+                                                    ? data.detalles.fecha_objetivo.split(' ')[0].split('T')[0]
+                                                    : data.detalles.fecha_objetivo;
+                                                document.getElementById('fecha_objetivo').value = fechaObj;
+                                            }
+
+                                            document.getElementById('tipo_proceso').value = data.detalles.tipo_proceso || '';
+                                            document.getElementById('tipo_gestion_det').value = data.detalles.tipo_gestion || '';
+                                        }
+
+                                        loading.classList.add('hidden');
+                                        content.classList.remove('hidden');
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        Swal.fire('Error', 'No se pudieron cargar los detalles', 'error');
+                                        closeDetallesModal();
+                                    }
+                                }
+
+                                // Selector de días laborables con SweetAlert2
+                                const btnSeleccionarDias = document.getElementById('btn-seleccionar-dias');
+                                if (btnSeleccionarDias) {
+                                    btnSeleccionarDias.addEventListener('click', function () {
+                                        const dias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
+                                        // Crear HTML con checkboxes
+                                        let htmlContent = '<div class="text-left space-y-2">';
+                                        dias.forEach(dia => {
+                                            const checked = diasSeleccionados.includes(dia) ? 'checked' : '';
+                                            const diaCapitalizado = dia.charAt(0).toUpperCase() + dia.slice(1);
+                                            htmlContent += `
+                                                                                                                                                                                                                            <label class="flex items-center cursor-pointer p-2 hover:bg-celeste hover:bg-opacity-30 rounded">
+                                                                                                                                                                                                                                <input type="checkbox" value="${dia}" class="mr-3 w-4 h-4 text-naranja border-azul-noche rounded focus:ring-naranja" ${checked}>
+                                                                                                                                                                                                                                <span class="text-azul-noche">${diaCapitalizado}</span>
+                                                                                                                                                                                                                            </label>
+                                                                                                                                                                                                                        `;
+                                        });
+                                        htmlContent += '</div>';
+
+                                        Swal.fire({
+                                            title: 'Seleccionar Días Laborables',
+                                            html: htmlContent,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Aceptar',
+                                            cancelButtonText: 'Cancelar',
+                                            confirmButtonColor: '#297373',
+                                            cancelButtonColor: '#011627',
+                                            width: '400px',
+                                            didOpen: () => {
+                                                // No necesitamos hacer nada especial aquí
+                                            },
+                                            preConfirm: () => {
+                                                const checkboxes = Swal.getContainer().querySelectorAll('input[type="checkbox"]:checked');
+                                                const selected = Array.from(checkboxes).map(cb => cb.value);
+                                                if (selected.length === 0) {
+                                                    Swal.showValidationMessage('Debes seleccionar al menos un día');
+                                                    return false;
+                                                }
+                                                return selected;
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed && result.value) {
+                                                diasSeleccionados = result.value;
+                                                document.getElementById('dias_laborables').value = JSON.stringify(diasSeleccionados);
+                                                updateDiasText();
+                                            }
+                                        });
+                                    });
+                                }
+
+                                function updateDiasText() {
+                                    const textEl = document.getElementById('dias-seleccionados-text');
+                                    if (diasSeleccionados.length > 0) {
+                                        textEl.textContent = diasSeleccionados.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
+                                    } else {
+                                        textEl.textContent = 'Seleccionar días';
+                                    }
+                                }
+
+
+                                const btnGuardar = document.getElementById('btn-guardar-detalles-v2');
+                                if (btnGuardar) {
+                                    btnGuardar.addEventListener('click', async function () {
+                                        const form = document.getElementById('form-detalles-convocatoria');
+                                        const formData = new FormData(form);
+
+                                        // Agregar días laborables (usar set para sobrescribir el input hidden vacío)
+                                        formData.set('dias_laborables', JSON.stringify(diasSeleccionados));
+
+                                        const payload = {};
+                                        formData.forEach((value, key) => {
+                                            if (key === 'dias_laborables') {
+                                                try {
+                                                    payload[key] = value ? JSON.parse(value) : [];
+                                                } catch (e) {
+                                                    console.warn('Error parsing dias_laborables:', e);
+                                                    payload[key] = [];
+                                                }
+                                            } else {
+                                                payload[key] = value || null;
+                                            }
+                                        });
+
+                                        console.log('Enviando datos al servidor:', payload);
+
+                                        Swal.fire({
+                                            title: 'Guardando...',
+                                            allowOutsideClick: false,
+                                            didOpen: () => { Swal.showLoading(); }
+                                        });
+
+                                        try {
+                                            const response = await fetch(`/convocatorias/${currentConvocatoriaId}/detalles`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                                },
+                                                body: JSON.stringify(payload)
+                                            });
+
+                                            console.log('Respuesta del servidor - Status:', response.status);
+
+                                            // Verificar si la respuesta es JSON válido
+                                            const contentType = response.headers.get('content-type');
+                                            if (!contentType || !contentType.includes('application/json')) {
+                                                console.error('Respuesta no es JSON:', contentType);
+                                                const text = await response.text();
+                                                console.error('Contenido de la respuesta:', text);
+                                                throw new Error('El servidor no devolvió una respuesta JSON válida');
+                                            }
+
+                                            const data = await response.json();
+                                            console.log('Datos recibidos:', data);
+
+                                            if (response.ok && data.success) {
+                                                Swal.fire('Éxito', data.message || 'Detalles guardados correctamente', 'success');
+                                            } else if (response.status === 422) {
+                                                // Error de validación
+                                                let errorMsg = 'Error de validación:\n';
+                                                if (data.errors) {
+                                                    for (const [field, messages] of Object.entries(data.errors)) {
+                                                        errorMsg += `\n${field}: ${messages.join(', ')}`;
+                                                    }
+                                                }
+                                                Swal.fire('Error de Validación', errorMsg, 'error');
+                                            } else {
+                                                Swal.fire('Error', data.error || data.message || 'No se pudieron guardar los detalles', 'error');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error completo:', error);
+                                            Swal.fire('Error', 'Error al guardar los detalles: ' + error.message, 'error');
+                                        }
+                                    });
+                                }
+
+                                // Botones cerrar
+                                document.getElementById('cerrar-modal-detalles').addEventListener('click', closeDetallesModal);
+                                document.getElementById('btn-cerrar-detalles').addEventListener('click', closeDetallesModal);
+
+                                // Cerrar al hacer click fuera del modal
+                                document.getElementById('modal-detalles-convocatoria').addEventListener('click', function (ev) {
+                                    if (ev.target === this) closeDetallesModal();
+                                });
+                            });
+                        </script>
     @endpush
 @endif

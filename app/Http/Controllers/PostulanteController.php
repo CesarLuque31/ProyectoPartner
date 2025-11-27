@@ -80,7 +80,20 @@ class PostulanteController extends Controller
 				->orderBy('created_at', 'desc')
 				->get();
 
-			return response()->json(['success' => true, 'data' => $postulantes]);
+			// Verificar si algún postulante ya fue capacitado
+			$yaCapacitados = false;
+			if ($postulantes->isNotEmpty()) {
+				$dnis = $postulantes->pluck('dni')->toArray();
+				$yaCapacitados = DB::table('Postulantes_En_Formacion')
+					->whereIn('DNI', $dnis)
+					->exists();
+			}
+
+			return response()->json([
+				'success' => true,
+				'data' => $postulantes,
+				'ya_capacitados' => $yaCapacitados
+			]);
 		} catch (\Exception $e) {
 			Log::error('Error obteniendo postulantes por convocatoria: ' . $e->getMessage());
 			return response()->json(['success' => false, 'error' => 'No se pudo obtener postulantes'], 500);
@@ -98,14 +111,17 @@ class PostulanteController extends Controller
 				'dni' => [
 					'required',
 					'string',
-					Rule::unique('raz_postulantes')->where(function ($query) {
-						return $query->whereExists(function ($subQuery) {
-							$subQuery->select(DB::raw(1))
-								->from('raz_convocatorias')
-								->whereColumn('raz_convocatorias.id', 'raz_postulantes.convocatoria_id')
-								->where('raz_convocatorias.estado', '!=', 'Cancelada');
-						});
-					})
+					function ($attribute, $value, $fail) {
+						$exists = DB::table('raz_postulantes')
+							->join('raz_convocatorias', 'raz_postulantes.convocatoria_id', '=', 'raz_convocatorias.id')
+							->where('raz_postulantes.dni', $value)
+							->where('raz_convocatorias.estado', '!=', 'Cancelada')
+							->exists();
+
+						if ($exists) {
+							$fail('El DNI ya está registrado en una convocatoria activa.');
+						}
+					}
 				],
 				'nombres' => 'required|string',
 				'ap_pat' => 'required|string',
@@ -203,14 +219,17 @@ class PostulanteController extends Controller
 				'dni' => [
 					'required',
 					'string',
-					Rule::unique('raz_postulantes')->where(function ($query) {
-						return $query->whereExists(function ($subQuery) {
-							$subQuery->select(DB::raw(1))
-								->from('raz_convocatorias')
-								->whereColumn('raz_convocatorias.id', 'raz_postulantes.convocatoria_id')
-								->where('raz_convocatorias.estado', '!=', 'Cancelada');
-						});
-					})
+					function ($attribute, $value, $fail) {
+						$exists = DB::table('raz_postulantes')
+							->join('raz_convocatorias', 'raz_postulantes.convocatoria_id', '=', 'raz_convocatorias.id')
+							->where('raz_postulantes.dni', $value)
+							->where('raz_convocatorias.estado', '!=', 'Cancelada')
+							->exists();
+
+						if ($exists) {
+							$fail('El DNI ya está registrado en una convocatoria activa.');
+						}
+					}
 				],
 				'nombres' => 'required|string',
 				'ap_pat' => 'required|string',
@@ -491,15 +510,17 @@ class PostulanteController extends Controller
 						}
 
 						// Verificar si ya existe en postulantes activos
-						$exists = DB::table('raz_postulantes')
+						$existingPostulante = DB::table('raz_postulantes')
 							->join('raz_convocatorias', 'raz_postulantes.convocatoria_id', '=', 'raz_convocatorias.id')
 							->where('raz_postulantes.dni', $dni)
 							->where('raz_convocatorias.estado', '!=', 'Cancelada')
-							->exists();
+							->select('raz_postulantes.nombres', 'raz_postulantes.ap_pat', 'raz_postulantes.ap_mat')
+							->first();
 
-						if ($exists) {
+						if ($existingPostulante) {
 							$errores++;
-							$detallesErrores[] = "Fila " . ($i + 1) . ": DNI $dni ya existe";
+							$nombreCompleto = trim("{$existingPostulante->nombres} {$existingPostulante->ap_pat} {$existingPostulante->ap_mat}");
+							$detallesErrores[] = "Fila " . ($i + 1) . ": DNI $dni ($nombreCompleto) ya existe";
 							continue;
 						}
 
@@ -589,15 +610,17 @@ class PostulanteController extends Controller
 						}
 
 						// Verificar si ya existe en postulantes activos
-						$exists = DB::table('raz_postulantes')
+						$existingPostulante = DB::table('raz_postulantes')
 							->join('raz_convocatorias', 'raz_postulantes.convocatoria_id', '=', 'raz_convocatorias.id')
 							->where('raz_postulantes.dni', $carnet)
 							->where('raz_convocatorias.estado', '!=', 'Cancelada')
-							->exists();
+							->select('raz_postulantes.nombres', 'raz_postulantes.ap_pat', 'raz_postulantes.ap_mat')
+							->first();
 
-						if ($exists) {
+						if ($existingPostulante) {
 							$errores++;
-							$detallesErrores[] = "Fila " . ($i + 1) . ": Carnet $carnet ya existe";
+							$nombreCompleto = trim("{$existingPostulante->nombres} {$existingPostulante->ap_pat} {$existingPostulante->ap_mat}");
+							$detallesErrores[] = "Fila " . ($i + 1) . ": Carnet $carnet ($nombreCompleto) ya existe";
 							continue;
 						}
 
@@ -731,5 +754,233 @@ class PostulanteController extends Controller
 			return response()->json(['success' => false, 'error' => 'Error al procesar el archivo: ' . $e->getMessage()], 500);
 		}
 	}
-}
 
+	/**
+	 * Transferir todos los postulantes de una convocatoria a Postulantes_En_Formacion (Capacitación)
+	 */
+	public function capacitarConvocatoria($convocatoriaId)
+	{
+		try {
+			// Obtener todos los postulantes de la convocatoria con información necesaria
+			$postulantes = DB::table('raz_postulantes')
+				->join('raz_convocatorias', 'raz_postulantes.convocatoria_id', '=', 'raz_convocatorias.id')
+				->leftJoin('raz_convocatorias_detalles', 'raz_convocatorias.id', '=', 'raz_convocatorias_detalles.convocatoria_id')
+				->where('raz_postulantes.convocatoria_id', $convocatoriaId)
+				->select(
+					'raz_postulantes.id',
+					'raz_postulantes.dni',
+					'raz_postulantes.nombres',
+					'raz_postulantes.ap_pat',
+					'raz_postulantes.ap_mat',
+					'raz_postulantes.celular',
+					'raz_postulantes.fecha_nac',
+					'raz_postulantes.experiencia_callcenter',
+					'raz_convocatorias.campana',
+					'raz_convocatorias.reclutadores_asignados',
+					'raz_convocatorias.fecha_inicio_capacitacion',
+					'raz_convocatorias_detalles.modalidad_trabajo'
+				)
+				->get();
+
+			if ($postulantes->isEmpty()) {
+				return response()->json(['success' => false, 'error' => 'No hay postulantes en esta convocatoria'], 404);
+			}
+
+			// Obtener DNI del primer reclutador asignado (será el mismo para todos)
+			$reclutadores = json_decode($postulantes[0]->reclutadores_asignados, true);
+			$dniCapacitador = null;
+			if (is_array($reclutadores) && count($reclutadores) > 0) {
+				$dniCapacitador = $reclutadores[0];
+			}
+
+			// Mapear modalidad_trabajo a ModalidadID
+			$modalidadId = null;
+			if ($postulantes[0]->modalidad_trabajo) {
+				$modalidadLower = strtolower(trim($postulantes[0]->modalidad_trabajo));
+				if ($modalidadLower === 'presencial') {
+					$modalidadId = 1;
+				} elseif ($modalidadLower === 'remoto' || $modalidadLower === 'remote') {
+					$modalidadId = 2;
+				}
+			}
+
+			$campanaId = $postulantes[0]->campana;
+			$transferidos = 0;
+			$yaExistentes = 0;
+			$errores = [];
+
+			// Procesar cada postulante
+			foreach ($postulantes as $postulante) {
+				try {
+					// Verificar si ya existe en Postulantes_En_Formacion
+					$exists = DB::table('Postulantes_En_Formacion')
+						->where('DNI', $postulante->dni)
+						->exists();
+
+					if ($exists) {
+						$yaExistentes++;
+						continue;
+					}
+
+					// Preparar datos para insertar
+					// Extraer solo la fecha (sin hora) de fecha_inicio_capacitacion
+					$fechaInicio = null;
+					if ($postulantes[0]->fecha_inicio_capacitacion) {
+						$fechaInicio = date('Y-m-d', strtotime($postulantes[0]->fecha_inicio_capacitacion));
+					}
+
+					$data = [
+						'DNI' => $postulante->dni,
+						'Nombres' => $postulante->nombres,
+						'ApellidoPaterno' => $postulante->ap_pat,
+						'ApellidoMaterno' => $postulante->ap_mat,
+						'Telefono' => $postulante->celular,
+						'FechaNacimiento' => $postulante->fecha_nac,
+						'FechaInicio' => $fechaInicio,
+						'EstadoPostulante' => 'Capacitación',
+						'Experiencia' => $postulante->experiencia_callcenter === 'si' ? 'SI' : 'NO',
+						'DNI_Capacitador' => $dniCapacitador,
+						'CampañaID' => $campanaId,
+						'ModalidadID' => $modalidadId,
+					];
+
+					// Insertar en Postulantes_En_Formacion
+					DB::table('Postulantes_En_Formacion')->insert($data);
+					$transferidos++;
+
+				} catch (\Exception $e) {
+					$errores[] = "Error con DNI {$postulante->dni}: " . $e->getMessage();
+					Log::error("Error capacitando postulante {$postulante->dni}: " . $e->getMessage());
+				}
+			}
+
+			return response()->json([
+				'success' => true,
+				'message' => "Transferencia completada",
+				'transferidos' => $transferidos,
+				'ya_existentes' => $yaExistentes,
+				'total' => count($postulantes),
+				'errores' => $errores
+			]);
+
+		} catch (\Exception $e) {
+			Log::error('Error al capacitar convocatoria: ' . $e->getMessage());
+			return response()->json([
+				'success' => false,
+				'error' => 'Error al transferir postulantes: ' . $e->getMessage()
+			], 500);
+		}
+	}
+
+	/**
+	 * Obtener historial de capacitaciones de un postulante por DNI
+	 */
+	public function getHistorialCapacitacion($dni)
+	{
+		try {
+			// Primero obtener el historial básico
+			$historial = DB::table('Postulantes_En_Formacion')
+				->where('DNI', $dni)
+				->select(
+					'CampañaID',
+					'DNI_Capacitador',
+					'EstadoPostulante',
+					'FechaInicio',
+					'ModalidadID',
+					'Experiencia'
+				)
+				->orderBy('FechaInicio', 'desc')
+				->get();
+
+			// Mapear cada registro para agregar nombre de campaña y modalidad
+			$historial = $historial->map(function ($item) {
+				// Intentar obtener nombre de campaña
+				$item->NombreCampana = $item->CampañaID; // Default: mostrar ID
+
+				try {
+					// Intentar buscar con el ID como está
+					$campana = DB::table('pri.Campanias')
+						->where('CampañaID', $item->CampañaID)
+						->first();
+
+					// Si no encuentra, intentar con conversión a entero
+					if (!$campana) {
+						$campana = DB::table('pri.Campanias')
+							->where('CampañaID', (int) $item->CampañaID)
+							->first();
+					}
+
+					// Debug: ver qué columnas tiene la tabla
+					if ($campana) {
+						Log::info('Campaña encontrada:', (array) $campana);
+
+						// Intentar diferentes variaciones del nombre de columna
+						if (isset($campana->NombreCampaña)) {
+							$item->NombreCampana = $campana->NombreCampaña;
+						} elseif (isset($campana->NombreCampana)) {
+							$item->NombreCampana = $campana->NombreCampaña;
+						} elseif (isset($campana->nombre_campana)) {
+							$item->NombreCampana = $campana->nombre_campana;
+						} elseif (isset($campana->Nombre)) {
+							$item->NombreCampana = $campana->Nombre;
+						} elseif (isset($campana->nombre)) {
+							$item->NombreCampana = $campana->nombre;
+						} else {
+							// Si no encuentra ninguna columna conocida, usar la primera columna de texto que encuentre
+							$campaniaArray = (array) $campana;
+							foreach ($campaniaArray as $key => $value) {
+								if ($key !== 'CampañaID' && $key !== 'CampaniaID' && is_string($value)) {
+									$item->NombreCampana = $value;
+									Log::info("Usando columna: $key con valor: $value");
+									break;
+								}
+							}
+						}
+					} else {
+						Log::warning("No se encontró campaña con ID: {$item->CampañaID}");
+					}
+				} catch (\Exception $e) {
+					Log::error('Error obteniendo nombre de campaña: ' . $e->getMessage());
+				}
+
+				// Obtener nombre del capacitador
+				$item->NombreCapacitador = $item->DNI_Capacitador; // Default: mostrar DNI
+
+				if ($item->DNI_Capacitador) {
+					try {
+						$empleado = DB::table('pri.empleados')
+							->where('DNI', $item->DNI_Capacitador)
+							->select('Nombres', 'ApellidoPaterno', 'ApellidoMaterno')
+							->first();
+
+						if ($empleado) {
+							$nombreCompleto = trim(
+								($empleado->Nombres ?? '') . ' ' .
+								($empleado->ApellidoPaterno ?? '') . ' ' .
+								($empleado->ApellidoMaterno ?? '')
+							);
+							$item->NombreCapacitador = $nombreCompleto ?: $item->DNI_Capacitador;
+						}
+					} catch (\Exception $e) {
+						Log::error('Error obteniendo nombre de capacitador: ' . $e->getMessage());
+					}
+				}
+
+				// Mapear modalidad
+				$item->Modalidad = $item->ModalidadID == 1 ? 'Presencial' : ($item->ModalidadID == 2 ? 'Remoto' : 'N/A');
+				return $item;
+			});
+
+			return response()->json([
+				'success' => true,
+				'data' => $historial
+			]);
+		} catch (\Exception $e) {
+			Log::error('Error obteniendo historial de capacitación: ' . $e->getMessage());
+			return response()->json([
+				'success' => false,
+				'error' => 'No se pudo obtener el historial: ' . $e->getMessage()
+			], 500);
+		}
+	}
+}
